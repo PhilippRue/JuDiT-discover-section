@@ -2,8 +2,26 @@
 
 # Structure-Property-Visualizer
 
-Use this app to generate interactive visualizations like [these](https://www.materialscloud.org/discover/cofs#mcloudHeader) 
+Use this app to generate interactive visualizations like [these](https://www.materialscloud.org/discover/cofs#mcloudHeader)
 for atomic structures and their properties.
+
+## Inner working
+
+For each COF we create a group, e.g., `curated-cof_05001N2_v1` that contains all the nodes that are relevant for that structure.
+These nodes have the extra `curated-cof_tag`, which indicates the content of that node: e.g., `orig_cif`, `opt_cif_ddec`, `isot_n2_out`, ...
+
+## Re-implementation based on Panel
+
+Use as jupyter notebook:
+```
+jupyter notebook
+# open figure/main.ipynb
+```
+
+Use with panel:
+```
+panel serve detail/ figure/
+```
 
 ## Features
 
@@ -20,8 +38,8 @@ for atomic structures and their properties.
 ### Prerequisites
 
  * [git](https://git-scm.com/)
- * [python](https://www.python.org/)
- * [nodejs](https://nodejs.org/en/) >= 6
+ * [python](https://www.python.org/) >= 2.7
+ * [nodejs](https://nodejs.org/en/) >= 6.10
 
 ### Installation
 
