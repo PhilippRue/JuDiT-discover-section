@@ -1,30 +1,11 @@
 FROM python:3.7
 
-# Install recent nodejs for bokeh & jsmol-bokeh-extension
-# See https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions
-RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  nodejs \
-  graphviz \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get clean all
-
-# Install jsmol
-WORKDIR /app
-
-RUN wget https://sourceforge.net/projects/jmol/files/Jmol/Version%2014.29/Jmol%2014.29.22/Jmol-14.29.22-binary.zip/download --output-document jmol.zip
-RUN unzip jmol.zip && cd jmol-14.29.22 && unzip jsmol.zip
-
 # Install discover section
 ENV AIIDA_PATH /app
 ENV PYTHONPATH /app
-WORKDIR /app/discover-cofs
+WORKDIR /app/judit
 
-COPY figure ./figure
-COPY detail ./detail
 COPY data ./data
-COPY select-figure ./select-figure
-RUN ln -s /app/jmol-14.29.22/jsmol ./detail/static/jsmol
 COPY setup.py ./
 RUN pip install -e .
 RUN reentry scan -r aiida
