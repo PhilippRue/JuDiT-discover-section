@@ -15,10 +15,15 @@ if __name__ == '__main__':
           classifiers=["Programming Language :: Python"],
           version="0.1.0",
           install_requires=[
-              "bokeh~=1.3.4",
-              "pandas~=0.24.2",
+              "aiida-core~=1.1.1",
+              "panel~=0.8.0",
+              "tornado==5.1.1",
+              "matplotlib==3.2.0",
               "requests~=2.21.0",
               "jupyter",
+              "aiida-kkr==1.1.10",
+              "ase-notebook==0.3.1",
+              "pandas==1.0.1",
           ],
           extras_require={
               "pre-commit":

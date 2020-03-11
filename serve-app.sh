@@ -12,7 +12,7 @@ set -x
 #psql_start
 
 #===============================================================================
-bokeh serve figure detail select-figure  \
+panel serve judit_website_main.ipynb  \
     --port 5006                 \
     --log-level debug           \
     --allow-websocket-origin "*" \
