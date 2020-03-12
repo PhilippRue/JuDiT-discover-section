@@ -1,7 +1,7 @@
 
 from plots_overview.load_data import load_all
 from matplotlib import cm
-from plots_overview.plot_periodic_table import formatter_int, formatter_2f, formatter_1e, blank_color, initialize_periodic_table
+from plots_overview import formatter_int, formatter_2f, formatter_1e, blank_color, initialize_periodic_table
 import numpy as np
 from matplotlib.colors import Normalize, LogNorm, to_hex
 from bokeh.models import ColumnDataSource
@@ -11,7 +11,7 @@ import bokeh.plotting as bkp
 from bokeh.models import HoverTool
 from bokeh.models import CustomJS
 import panel as pn
-
+from about import judit_footer, judit_header
 
 height_plot = 500
 height_hist = 150
@@ -372,3 +372,8 @@ def make_scatterplot_with_hist():
     layout = combine_scatterplot_with_hists(select_x, select_y, select_color, xhist, yhist, scatterplot)
 
     return layout
+
+# standalone version
+layout_with_hist = pn.Column(judit_header, make_scatterplot_with_hist(), judit_footer)
+
+layout_with_hist.servable()

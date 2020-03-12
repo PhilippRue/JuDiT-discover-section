@@ -12,7 +12,10 @@ set -x
 #psql_start
 
 #===============================================================================
-panel serve judit_website_main.ipynb  \
+panel serve judit_website_main.ipynb \
+            plots_host_system/standalone.py \
+            plots_overview/plot_periodic_table.py \
+            plots_overview/scatter_plot.py  \
     --port 5006                 \
     --log-level debug           \
     --allow-websocket-origin "*" \
