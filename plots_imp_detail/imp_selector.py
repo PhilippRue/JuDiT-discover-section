@@ -263,16 +263,29 @@ def construct_spinner():
 
 def make_imp_selector():
 
+
+    from time import time
+    import numpy as np
+
+    times = [time()]
+
     global spinner, output_pane, imp_select
     global imp_properties_all, all_DOSingap, all_dc
 
     output_pane = pn.pane.Markdown('no impurity selected', width=200)
     spinner = construct_spinner()
     imp_select = Select_Impurity()
+
+    times+= [time()]
+
     button, button_reset_selection, button_3d_selection, button_4d_selection, button_select_list = get_buttons_with_callbacks()
 
+    times+= [time()]
+
     # prepare some stuff
-    imp_properties_all, all_DOSingap, all_dc = preload_data()
+    imp_properties_all, all_DOSingap, all_dc = preload_data(load_data=True)
+
+    times+= [time()]
 
     # combine everything to a panel
     imp_select_panel = pn.Row(pn.Column(pn.pane.Markdown('####Select impurity for detail page'),
@@ -288,5 +301,9 @@ def make_imp_selector():
                                         pn.Row(output_pane, spinner)
                                     )
                             )
+
+    times+= [time()]
+    times = np.array(times)
+    print('timings imp_selector:', times[1:]-times[:-1])
 
     return imp_select_panel

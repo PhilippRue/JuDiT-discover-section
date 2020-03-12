@@ -548,10 +548,23 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
         return output_impsite
 
 
-def preload_data():
+def preload_data(load_data=False):
     global imp_properties_all, all_DOSingap, all_dc, structure0
  
+    from time import time
+    t0 = time()
     structure0, _ = prepare_plotting_structure(return_struc=True)
-    imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
+    t1 = time()
+    if not load_data:
+        imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
+        np.save('data/imp_properties.npy', imp_properties_all)
+        np.save('data/all_DOSingap.npy', all_DOSingap)
+        np.save('data/all_dc.npy', all_dc)
+    else:
+        imp_properties_all = np.load('data/imp_properties.npy', allow_pickle=True).item()
+        all_DOSingap = np.load('data/all_DOSingap.npy', allow_pickle=True).item()
+        all_dc = np.load('data/all_dc.npy', allow_pickle=True).item()
+    t2 = time()
+    print('timings preload_data:', t1-t0, t2-t1)
 
     return imp_properties_all, all_DOSingap, all_dc

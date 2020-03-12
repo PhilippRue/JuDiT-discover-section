@@ -7,13 +7,13 @@ def load_imp_properties():
 
 def load_and_sort_imp_properties_by_EFval():
 
-    imp_properties_all = load_imp_properties()
+    imp_properties_all = load_imp_properties().get_dict()
 
     # sort data according to EF value
     imp_properties_sorted = {}
     for EFset in [0, -200, -400]:
         imp_properties_sorted[EFset] = {}
-        for k, v in imp_properties_all.get_dict().items():
+        for k, v in imp_properties_all.items():
             add_element = False
             if EFset==0 and 'EF-' not in k:
                 add_element = True

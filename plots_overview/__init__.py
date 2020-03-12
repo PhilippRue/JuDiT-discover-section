@@ -91,27 +91,54 @@ def initialize_periodic_table():
 
     return symbols, atomic_numbers, groups, periods, group_range, period_label, 
 
+def get_Nimps(load_data=False):
+
+    if not load_data:
+        Nimps = len(list(load_imp_properties().keys()))
+        np.save('data/n_imps.npy', Nimps)
+    else:
+        Nimps = np.load('data/n_imps.npy')
+
+    return Nimps
+
+def make_overview_panels():
+
+    from time import time
+    import numpy as np
+
+    times = [time()]
+
+    Nimps = get_Nimps(load_data=True)
+
+    totimp_num_text = '#### Total number of impurities: {}'.format(Nimps)
+    print(totimp_num_text)
+    times+= [time()]
 
 
+    layout_periodic_table = pn.pane.PNG('images/statuc_image_periodic_table.png', width=int(website_width*0.8), 
+                                        link_url='main_periodic_table')
+    #from plots_overview.plot_periodic_table import periodic_table_with_buttons
+    #layout_periodic_table = periodic_table_with_buttons()
 
 
+    layout_with_hist = pn.pane.PNG('images/static_image_scatter_plot.png', width=int(website_width*0.8), 
+                                link_url='main_scatterplot_site')
+    #from plots_overview.scatter_plot import make_scatterplot_with_hist
+    #layout_with_hist = make_scatterplot_with_hist()
 
-totimp_num_text = '#### Total number of impurities: {}'.format(len(list(load_imp_properties().keys())))
-print(totimp_num_text)
+    times+= [time()]
 
+    # combine plots
+    layout = pn.Column(pn.pane.Markdown("## Average values for different impurity configurations"), 
+                    layout_periodic_table,
+                    pn.pane.Markdown("## Scatter plot"),
+                    layout_with_hist,
+                    )
 
-layout_periodic_table = pn.pane.PNG('images/statuc_image_periodic_table.png', width=int(website_width*0.8), 
-                                    link_url='plot_periodic_table')
+    imps_overview = pn.Row(layout)
 
-layout_with_hist = pn.pane.PNG('images/static_image_scatter_plot.png', width=int(website_width*0.8), 
-                               link_url='scatter_plot')
+    times+= [time()]
+    times = np.array(times)
+    print('timings make_overview_panels:', times[1:]-times[:-1])
 
-
-# combine plots
-layout = pn.Column(pn.pane.Markdown("## Average values for different impurity configurations"), 
-                   layout_periodic_table,
-                   pn.pane.Markdown("## Scatter plot"),
-                   layout_with_hist,
-                   )
-
-imps_overview = pn.Row(layout)
+    return totimp_num_text, imps_overview

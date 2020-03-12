@@ -11,7 +11,6 @@ import bokeh.plotting as bkp
 from bokeh.models import HoverTool
 from bokeh.models import CustomJS
 import panel as pn
-from about import judit_footer, judit_header
 
 height_plot = 500
 height_hist = 150
@@ -37,119 +36,127 @@ formatters = {'Zimp': formatter_int,
             }
 
 
-def get_scatter_column_data_source():
+def get_scatter_column_data_source(load_data=False):
 
-    imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
-    symbols, atomic_numbers, _, _, _, _ = initialize_periodic_table()
-
-
-    out_all = []
-    for k, v in imp_properties_all.get_dict().items():
-        if 'EF' not in k:
-            efval = 0.0
-        elif 'EF-200' in k:
-            efval = -0.2
-        else:
-            efval = -0.4
-        tmp = [v['zimp'], v['zhost'], v['ilayer'], efval, v['orbital_moment_imp'], v['rms'], v['spin_moment_imp'], v['etot_Ry']]
-        out_all.append(tmp)
-    out_all = np.array(out_all)
+    if not load_data:
+        imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
+        symbols, atomic_numbers, _, _, _, _ = initialize_periodic_table()
 
 
-    mapping_imp_props = {0:'Zimp' ,
-                        1:'Zhost' ,
-                        2:'ilayer' ,
-                        3:'EFshift' ,
-                        4:'orbmom' ,
-                        5:'rms' ,
-                        6:'spinmom' ,
-                        7:'etot_Ry',
-                        }
-
-
-    dictdata = {}
-    for idx, name in mapping_imp_props.items():
-        dictdata[name] = out_all[:,idx]
-        if name in ['orbmom', 'spinmom']:
-            dictdata[name] = np.array([i[2] for i in out_all[:,idx]])
-        elif name =='ecore':
-            dictdata[name] = out_all[:,12]-out_all[:,13]
-            
-    # take uniform sign convention
-    dictdata['orbmom'] = dictdata['orbmom']*np.sign(dictdata['spinmom'])
-    dictdata['spinmom'] = dictdata['spinmom']*np.sign(dictdata['spinmom'])
-
-    # add DOS in gap and charge-transfer values
-    values_DOSinGap_sorted = np.array([-0.03 for i in range(len(dictdata['ilayer']))])
-    mapping = dictdata['Zimp']*1000000+1000*dictdata['Zhost']+dictdata['ilayer']+dictdata['EFshift']
-    allowed_keys = list(imp_properties_all.keys())
-    for k in all_DOSingap.keys():
-        impname, hostname, ilayer = k.split(':')[1].split('_')[0], k.split('[')[0].split('_')[-1], k.split('[')[1].split(']')[0]
-        zimp, zhost, ilayer = int(atomic_numbers[symbols==impname][0]), int(atomic_numbers[symbols==hostname][0]), int(ilayer)
-        efshift = 0
-        if 'EF-400' in k:
-            efshift = -0.4
-        elif 'EF-200' in k:
-            efshift = -0.2
-        # set value
-        if k in allowed_keys and (1000000*zimp+1000*zhost+ilayer+efshift) in mapping:
-            values_DOSinGap_sorted[np.where(mapping==(1000000*zimp+1000*zhost+ilayer+efshift))[0][0]] = all_DOSingap[k]
-            
-    dictdata['DOS_in_gap'] = values_DOSinGap_sorted
-
-
-    values_dc_sorted = np.array([-0.02 for i in range(len(dictdata['ilayer']))])
-    for k in all_dc.keys():
-        impname, hostname, ilayer = k.split(':')[1].split('_')[0], k.split('[')[0].split('_')[-1], k.split('[')[1].split(']')[0]
-        zimp, zhost, ilayer = int(atomic_numbers[symbols==impname][0]), int(atomic_numbers[symbols==hostname][0]), int(ilayer)
-        efshift = 0
-        if 'EF-400' in k:
-            efshift = -0.4
-        elif 'EF-200' in k:
-            efshift = -0.2
-        # set value
-        if k in allowed_keys and (1000000*zimp+1000*zhost+ilayer+efshift) in mapping:
-            values_dc_sorted[np.where(mapping==(1000000*zimp+1000*zhost+ilayer+efshift))[0][0]] = all_dc[k]
-            
-    dictdata['charge_doping'] = values_dc_sorted
-
-
-    # add color dict entries
-    dictdata['color_None'] = np.array(['navy' for i in range(len(dictdata['spinmom']))]) # default value
-
-
-    for name in list(mapping_imp_props.values())+['DOS_in_gap', 'charge_doping']:
-        if name == 'EFshift':
-            dictdata[name] = dictdata[name]+0.2
-        val = dictdata[name]
-        if name=='orbmom': val = abs(val)
-        norm = Normalize(vmin = min([ival for ival in val if ival is not None]), vmax = max([ival for ival in val if ival is not None]))
-        cmap_scatter = cm.plasma
-        colors = []
-        for ival in val:
-            if ival is not None:
-                colors.append(to_hex(cm.ScalarMappable(norm=norm, cmap=cmap_scatter).to_rgba(ival, alpha=0.6)))
+        out_all = []
+        for k, v in imp_properties_all.items():
+            if 'EF' not in k:
+                efval = 0.0
+            elif 'EF-200' in k:
+                efval = -0.2
             else:
-                colors.append(blank_color)
-        colors = np.array(colors)
-        dictdata['color_'+name] = colors
+                efval = -0.4
+            tmp = [v['zimp'], v['zhost'], v['ilayer'], efval, v['orbital_moment_imp'], v['rms'], v['spin_moment_imp'], v['etot_Ry']]
+            out_all.append(tmp)
+        out_all = np.array(out_all)
 
 
-    # remove 'missing' data from scatterplot
-    cd = dictdata['charge_doping']
-    gapfill = dictdata['DOS_in_gap']
-    mcd = np.where(cd==-0.02)[0]
-    mgf = np.where(gapfill==-0.03)[0]
-    notm = np.array(list(set(list(mcd)+list(mgf))))
-    m = [i for i in range(len(cd)) if i not in notm]
-    for k,v in dictdata.items():
-        dictdata[k] = v[m]
+        mapping_imp_props = {0:'Zimp' ,
+                            1:'Zhost' ,
+                            2:'ilayer' ,
+                            3:'EFshift' ,
+                            4:'orbmom' ,
+                            5:'rms' ,
+                            6:'spinmom' ,
+                            7:'etot_Ry',
+                            }
 
 
-    # define default values:
-    dictdata['x'] = dictdata[name0x]
-    dictdata['y'] = dictdata[name0y]
-    dictdata['color'] = dictdata['color_'+name0c]
+        dictdata = {}
+        for idx, name in mapping_imp_props.items():
+            dictdata[name] = out_all[:,idx]
+            if name in ['orbmom', 'spinmom']:
+                dictdata[name] = np.array([i[2] for i in out_all[:,idx]])
+            elif name =='ecore':
+                dictdata[name] = out_all[:,12]-out_all[:,13]
+                
+        # take uniform sign convention
+        dictdata['orbmom'] = dictdata['orbmom']*np.sign(dictdata['spinmom'])
+        dictdata['spinmom'] = dictdata['spinmom']*np.sign(dictdata['spinmom'])
+
+        # add DOS in gap and charge-transfer values
+        values_DOSinGap_sorted = np.array([-0.03 for i in range(len(dictdata['ilayer']))])
+        mapping = dictdata['Zimp']*1000000+1000*dictdata['Zhost']+dictdata['ilayer']+dictdata['EFshift']
+        allowed_keys = list(imp_properties_all.keys())
+        for k in all_DOSingap.keys():
+            impname, hostname, ilayer = k.split(':')[1].split('_')[0], k.split('[')[0].split('_')[-1], k.split('[')[1].split(']')[0]
+            zimp, zhost, ilayer = int(atomic_numbers[symbols==impname][0]), int(atomic_numbers[symbols==hostname][0]), int(ilayer)
+            efshift = 0
+            if 'EF-400' in k:
+                efshift = -0.4
+            elif 'EF-200' in k:
+                efshift = -0.2
+            # set value
+            if k in allowed_keys and (1000000*zimp+1000*zhost+ilayer+efshift) in mapping:
+                values_DOSinGap_sorted[np.where(mapping==(1000000*zimp+1000*zhost+ilayer+efshift))[0][0]] = all_DOSingap[k]
+                
+        dictdata['DOS_in_gap'] = values_DOSinGap_sorted
+
+
+        values_dc_sorted = np.array([-0.02 for i in range(len(dictdata['ilayer']))])
+        for k in all_dc.keys():
+            impname, hostname, ilayer = k.split(':')[1].split('_')[0], k.split('[')[0].split('_')[-1], k.split('[')[1].split(']')[0]
+            zimp, zhost, ilayer = int(atomic_numbers[symbols==impname][0]), int(atomic_numbers[symbols==hostname][0]), int(ilayer)
+            efshift = 0
+            if 'EF-400' in k:
+                efshift = -0.4
+            elif 'EF-200' in k:
+                efshift = -0.2
+            # set value
+            if k in allowed_keys and (1000000*zimp+1000*zhost+ilayer+efshift) in mapping:
+                values_dc_sorted[np.where(mapping==(1000000*zimp+1000*zhost+ilayer+efshift))[0][0]] = all_dc[k]
+                
+        dictdata['charge_doping'] = values_dc_sorted
+
+
+        # add color dict entries
+        dictdata['color_None'] = np.array(['navy' for i in range(len(dictdata['spinmom']))]) # default value
+
+
+        for name in list(mapping_imp_props.values())+['DOS_in_gap', 'charge_doping']:
+            if name == 'EFshift':
+                dictdata[name] = dictdata[name]+0.2
+            val = dictdata[name]
+            if name=='orbmom': val = abs(val)
+            norm = Normalize(vmin = min([ival for ival in val if ival is not None]), vmax = max([ival for ival in val if ival is not None]))
+            cmap_scatter = cm.plasma
+            colors = []
+            for ival in val:
+                if ival is not None:
+                    colors.append(to_hex(cm.ScalarMappable(norm=norm, cmap=cmap_scatter).to_rgba(ival, alpha=0.6)))
+                else:
+                    colors.append(blank_color)
+            colors = np.array(colors)
+            dictdata['color_'+name] = colors
+
+
+        # remove 'missing' data from scatterplot
+        cd = dictdata['charge_doping']
+        gapfill = dictdata['DOS_in_gap']
+        mcd = np.where(cd==-0.02)[0]
+        mgf = np.where(gapfill==-0.03)[0]
+        notm = np.array(list(set(list(mcd)+list(mgf))))
+        m = [i for i in range(len(cd)) if i not in notm]
+        for k,v in dictdata.items():
+            dictdata[k] = v[m]
+
+
+        # define default values:
+        dictdata['x'] = dictdata[name0x]
+        dictdata['y'] = dictdata[name0y]
+        dictdata['color'] = dictdata['color_'+name0c]
+
+        # save dictdata to file for later reuse
+        np.save('data/scatter_source.npy', dictdata) 
+
+    else:
+        # Load from file
+        dictdata = np.load('data/scatter_source.npy',allow_pickle='TRUE').item()
 
     # save as ColumnDataSource
     source_scatter = ColumnDataSource(data=dictdata)
@@ -190,7 +197,7 @@ def make_scatterplot(source_scatter):
 
 def get_scatterplot_and_buttons():
 
-    source_scatter = get_scatter_column_data_source()
+    source_scatter = get_scatter_column_data_source(load_data=True)
     scatterplot = make_scatterplot(source_scatter)
 
     callback_change_x = CustomJS(args=dict(source=source_scatter, plot=scatterplot, formatters=formatters
@@ -250,8 +257,7 @@ def get_scatterplot_and_buttons():
     return scatterplot, source_scatter, select_x, select_y, select_color
 
 
-def get_histograms(source_scatter, scatterplot):
-    # create the vertical histograms
+def get_data_for_histograms(source_scatter):
 
     dict_vhist_all, dict_vhist = {}, {}
     dict_hhist_all, dict_hhist = {}, {}
@@ -264,7 +270,7 @@ def get_histograms(source_scatter, scatterplot):
             dict_hhist_all[name]['left'] = dict_vhist_all[name]['bottom']
             dict_hhist_all[name]['right'] = dict_vhist_all[name]['top']
             dict_hhist_all[name]['top'] = dict_vhist_all[name]['right']
-        
+    
     dict_vhist['bottom'] = dict_vhist_all[name0y]['bottom']
     dict_vhist['top'] = dict_vhist_all[name0y]['top']
     dict_vhist['right'] = dict_vhist_all[name0y]['right']
@@ -272,6 +278,15 @@ def get_histograms(source_scatter, scatterplot):
     dict_hhist['left'] = dict_hhist_all[name0x]['left']
     dict_hhist['top'] = dict_hhist_all[name0x]['top']
     dict_hhist['right'] = dict_hhist_all[name0x]['right']
+
+    return dict_vhist, dict_hhist, dict_vhist_all, dict_hhist_all
+
+
+def get_histograms(source_scatter, scatterplot):
+
+    # create the vertical histograms
+    
+    dict_vhist, dict_hhist, dict_vhist_all, dict_hhist_all = get_data_for_histograms(source_scatter)
 
     src_hist_y = ColumnDataSource(data=dict_vhist)
     src_hist_x = ColumnDataSource(data=dict_hhist)
@@ -281,9 +296,7 @@ def get_histograms(source_scatter, scatterplot):
                        plot_width=width_hist, plot_height=height_plot,
                        x_axis_location="below", y_axis_location="right", y_range=scatterplot.y_range)
     xhist = bkp.figure(tools=['hover', 'box_zoom', 'reset'], toolbar_location='right',
-                       plot_width=width_plot, plot_height=height_hist, #sizing_mode='scale_both',
-                       #min_width=width_plot, min_height=height_hist, 
-                       #max_width=2*width_plot, max_height=int(1.5*height_hist), sizing_mode='stretch_both', 
+                       plot_width=width_plot, plot_height=height_hist,
                        x_axis_location="above", y_axis_location="left",
                        min_border_left=left_padding, x_range=scatterplot.x_range)
 
@@ -365,15 +378,17 @@ def combine_scatterplot_with_hists(select_x, select_y, select_color, xhist, yhis
 
 
 def make_scatterplot_with_hist():
-
+    from time import time
+    times = [time()]
     scatterplot, source_scatter, select_x, select_y, select_color = get_scatterplot_and_buttons()
+    times+= [time()]
     xhist, yhist, src_hist_x, src_hist_y, dict_vhist_all, dict_hhist_all = get_histograms(source_scatter, scatterplot)
+    times+= [time()]
     select_x, select_y = add_callbacks_histograms(xhist, yhist, src_hist_x, src_hist_y, dict_vhist_all, dict_hhist_all, select_x, select_y, select_color)
+    times+= [time()]
     layout = combine_scatterplot_with_hists(select_x, select_y, select_color, xhist, yhist, scatterplot)
+    times+= [time()]
+    times = np.array(times)
+    print('timings scatterplot', times[1:]-times[0])
 
     return layout
-
-# standalone version
-layout_with_hist = pn.Column(judit_header, make_scatterplot_with_hist(), judit_footer)
-
-layout_with_hist.servable()

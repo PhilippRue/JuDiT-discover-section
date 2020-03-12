@@ -14,8 +14,8 @@ set -x
 #===============================================================================
 panel serve judit_website_main.ipynb \
             plots_host_system/standalone.py \
-            plots_overview/plot_periodic_table.py \
-            plots_overview/scatter_plot.py  \
+            plots_overview/main_periodic_table.py \
+            plots_overview/main_scatterplot_site.py \
     --port 5006                 \
     --log-level debug           \
     --allow-websocket-origin "*" \

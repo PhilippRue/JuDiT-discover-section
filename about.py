@@ -5,7 +5,7 @@ from global_settings import website_width, DOI_DATABASE_MC_ARCHIVE
 judit_header = pn.Column(
     pn.Row(
         pn.pane.PNG("images/JuDiT_logo_round.png", width=400),
-        pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='150'/>"
+        pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='200'/>"
                     ""
                     "\n"
                     ""
@@ -111,6 +111,6 @@ judit_footer = pn.Column(
                      +"* [MaterialsCloud](https://www.materialscloud.org)\n"
                      +"\n"
                      +"[Contact: Dr. Philipp Rüßmann](mailto:p.ruessmann@fz-juelich.de?subject=[JuDiT])\n\n"
-                     +"[© Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)\n"
+                     +"[©2020 Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)\n"
                      +"</small>\n"
                     , width=website_width))

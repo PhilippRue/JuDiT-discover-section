@@ -11,8 +11,6 @@ from bokeh.models import RadioButtonGroup
 from bokeh.models.widgets import Paragraph
 from bokeh.layouts import column, row
 from bokeh.models import HoverTool
-from about import judit_footer, judit_header
-import panel as pn
 from plots_overview import (formatter_int, formatter_2f, formatter_1e, 
                             blank_color, initialize_periodic_table, 
                             bokeh_palette, cmap)
@@ -28,236 +26,281 @@ cbar_fontsize = 8   # size of cbar labels
 cbar_standoff = 12   # distance of labels to cbar
 
 
-def get_data_on_perdic_table():
+def get_data_on_perdic_table(load_data=False):
     """Get ColumnDataSource """
 
     global color_mapper_all
 
-    symbols, atomic_numbers, groups, periods, group_range, period_label = initialize_periodic_table()
+    if not load_data:
 
-    imp_properties_all, imp_properties_sorted, all_DOSingap, all_DOSingap_sorted, all_dc, all_dc_sorted = load_all()
+        symbols, atomic_numbers, groups, periods, group_range, period_label = initialize_periodic_table()
 
-    color_list_all_allEF = []
-    data_values_allEF = []
-    data_values_str_allEF = []
-    data_allEF = []
-    dstr_allEF = []
-    data_elements_allEF = []
-            
-    # now extract data from dict to arrays
-    for EFset in [0,-200,-400, 'all']:
-        
-        # collect imp properties 
-        if EFset!='all':
-            imp_properties = imp_properties_sorted[EFset]
-        else:
-            imp_properties = imp_properties_all.get_dict()
-            
-        # sort out 'wrong' data
-        imp_properties0 = {}
-        for k,v in imp_properties.items():
-            if 'EF-' not in k:
-                efshift = 0.2
-            if 'EF-400' in k:
-                efshift = -0.2
-            else:
-                efshift = 0.
-            mmap = v['zimp']*1000000+1000*v['zhost']+v['ilayer']+efshift
-            if 1: #mmap in mapping_data_ok:
-                imp_properties0[k] = v
-        imp_properties = imp_properties0
-        
+        imp_properties_all, imp_properties_sorted, all_DOSingap, all_DOSingap_sorted, all_dc, all_dc_sorted = load_all()
 
-        num_impcalcs = {}
-        rms_impcalcs = {}
-        omom, smom = {}, {}
-        nmag = {}
-        # unpack imp_properties array
-        for k, v in imp_properties.items():
-            impname = k.split(':')[1].split('_')[0]
-            if impname not in num_impcalcs.keys():
-                rms_impcalcs[impname] = []
-                num_impcalcs[impname] = 0
-                omom[impname], smom[impname] = [], []
-                nmag[impname] = 0
-            num_impcalcs[impname] += 1
-            rms_impcalcs[impname].append(v.get('rms'))
-            smom[impname].append(abs(v.get('spin_moment_imp')[2]))
-            omom[impname].append(abs(v.get('orbital_moment_imp')[2]))
-            if abs(v.get('spin_moment_imp')[2])> 10**-4:
-                nmag[impname] += 1
+        color_list_all_allEF = []
+        data_values_allEF = []
+        data_values_str_allEF = []
+        data_allEF = []
+        dstr_allEF = []
+        data_elements_allEF = []
                 
-        # extract values for charge doping and DOS in Gap
-        if EFset!='all':
-            DOSinGap_values = all_DOSingap_sorted[EFset]
-            dc_values = all_dc_sorted[EFset]
-        else:
-            DOSinGap_values = all_DOSingap
-            dc_values = all_dc
-        DOSinGap = {}
-        for k,v in DOSinGap_values.items():
-            impname = k.split(':')[1].split('_')[0]
-            if impname not in DOSinGap.keys():
-                DOSinGap[impname] = []
-            DOSinGap[impname].append(v)
-        charge_doping = {}
-        for k,v in dc_values.items():
-            impname = k.split(':')[1].split('_')[0]
-            if impname not in charge_doping.keys():
-                charge_doping[impname] = []
-            charge_doping[impname].append(v)
+        # now extract data from dict to arrays
+        for EFset in [0,-200,-400, 'all']:
+            
+            # collect imp properties 
+            if EFset!='all':
+                imp_properties = imp_properties_sorted[EFset]
+            else:
+                imp_properties = imp_properties_all
+                
+            # sort out 'wrong' data
+            imp_properties0 = {}
+            for k,v in imp_properties.items():
+                if 'EF-' not in k:
+                    efshift = 0.2
+                if 'EF-400' in k:
+                    efshift = -0.2
+                else:
+                    efshift = 0.
+                mmap = v['zimp']*1000000+1000*v['zhost']+v['ilayer']+efshift
+                if 1: #mmap in mapping_data_ok:
+                    imp_properties0[k] = v
+            imp_properties = imp_properties0
+            
 
-        # now fill big data array
-        data = []; data_elements = []; dstr = []
-        for k, v in imp_properties.items():
-            impname = k.split(':')[1].split('_')[0]
-            if impname not in data_elements:
-                data_elements.append(impname)
-                data.append([num_impcalcs[impname],
-                            np.mean(rms_impcalcs[impname]), np.std(rms_impcalcs[impname]),
-                            np.mean(smom[impname]), np.std(smom[impname]),
-                            np.mean(omom[impname]), np.std(omom[impname]),
-                            nmag[impname], nmag[impname]/float(num_impcalcs[impname])*100.,
-                            np.mean(charge_doping.get(impname,-2)), np.std(charge_doping.get(impname,-2)), 
-                            np.mean(DOSinGap.get(impname,-0.3)), np.std(DOSinGap.get(impname,-0.3))
-                            ])
-                dstr.append(['%i', # num clacs
-                            '%.3e', '%.3e', # rms (mean/std)
-                            '%.3f', '%.3f', # smom (mean/std)
-                            '%.3f', '%.3f', # omom (mean/std)
-                            '%i', # number mag
-                            '%.2f', # % mag
-                            '%.2f', '%.2f', # % charge_doping (mean/std)
-                            '%.2f', '%.2f' # % DOS in Gap (mean/std)
-                            ])
-        from numpy import array
-        data = array(data)
-        dstr = array(dstr)
-        data_elements = array(data_elements)
-        
-        # store in big arrays
-        data_allEF.append(data)
-        dstr_allEF.append(dstr)
-        data_elements_allEF.append(data_elements)
-        
+            num_impcalcs = {}
+            rms_impcalcs = {}
+            omom, smom = {}, {}
+            nmag = {}
+            # unpack imp_properties array
+            for k, v in imp_properties.items():
+                impname = k.split(':')[1].split('_')[0]
+                if impname not in num_impcalcs.keys():
+                    rms_impcalcs[impname] = []
+                    num_impcalcs[impname] = 0
+                    omom[impname], smom[impname] = [], []
+                    nmag[impname] = 0
+                num_impcalcs[impname] += 1
+                rms_impcalcs[impname].append(v.get('rms'))
+                smom[impname].append(abs(v.get('spin_moment_imp')[2]))
+                omom[impname].append(abs(v.get('orbital_moment_imp')[2]))
+                if abs(v.get('spin_moment_imp')[2])> 10**-4:
+                    nmag[impname] += 1
+                    
+            # extract values for charge doping and DOS in Gap
+            if EFset!='all':
+                DOSinGap_values = all_DOSingap_sorted[EFset]
+                dc_values = all_dc_sorted[EFset]
+            else:
+                DOSinGap_values = all_DOSingap
+                dc_values = all_dc
+            DOSinGap = {}
+            for k,v in DOSinGap_values.items():
+                impname = k.split(':')[1].split('_')[0]
+                if impname not in DOSinGap.keys():
+                    DOSinGap[impname] = []
+                DOSinGap[impname].append(v)
+            charge_doping = {}
+            for k,v in dc_values.items():
+                impname = k.split(':')[1].split('_')[0]
+                if impname not in charge_doping.keys():
+                    charge_doping[impname] = []
+                charge_doping[impname].append(v)
+
+            # now fill big data array
+            data = []; data_elements = []; dstr = []
+            for k, v in imp_properties.items():
+                impname = k.split(':')[1].split('_')[0]
+                if impname not in data_elements:
+                    data_elements.append(impname)
+                    data.append([num_impcalcs[impname],
+                                np.mean(rms_impcalcs[impname]), np.std(rms_impcalcs[impname]),
+                                np.mean(smom[impname]), np.std(smom[impname]),
+                                np.mean(omom[impname]), np.std(omom[impname]),
+                                nmag[impname], nmag[impname]/float(num_impcalcs[impname])*100.,
+                                np.mean(charge_doping.get(impname,-2)), np.std(charge_doping.get(impname,-2)), 
+                                np.mean(DOSinGap.get(impname,-0.3)), np.std(DOSinGap.get(impname,-0.3))
+                                ])
+                    dstr.append(['%i', # num clacs
+                                '%.3e', '%.3e', # rms (mean/std)
+                                '%.3f', '%.3f', # smom (mean/std)
+                                '%.3f', '%.3f', # omom (mean/std)
+                                '%i', # number mag
+                                '%.2f', # % mag
+                                '%.2f', '%.2f', # % charge_doping (mean/std)
+                                '%.2f', '%.2f' # % DOS in Gap (mean/std)
+                                ])
+            from numpy import array
+            data = array(data)
+            dstr = array(dstr)
+            data_elements = array(data_elements)
+            
+            # store in big arrays
+            data_allEF.append(data)
+            dstr_allEF.append(dstr)
+            data_elements_allEF.append(data_elements)
+            
+            # set up color scales
+            color_scale = []
+            color_mapper_all = []
+            #print(EFset, len(data[0]))
+            for color_component in range(len(data[0,:])):
+                cmin = min(data[:,color_component])
+                cmax = max(data[:,color_component])
+                #Define color map called 'color_scale'
+                if log_scale == 0:
+                    ColorMapper = LinearColorMapper
+                    norm = Normalize(vmin = cmin, vmax = cmax)
+                elif log_scale == 1:
+                    for datum in data[:,color_component]:
+                        if datum < 0:
+                            raise ValueError('Entry for element '+datum+' is negative but'
+                            ' log-scale is selected')
+                    ColorMapper = LogColorMapper
+                    norm = LogNorm(vmin = cmin, vmax = cmax)
+
+                color_mapper_all.append(ColorMapper(palette = bokeh_palette, low=cmin, high=cmax))
+                color_scale.append(ScalarMappable(norm=norm, cmap=cmap).to_rgba(data[:,color_component], alpha=None))
+
+            # save data array to be able to generate color_mapper_all from prepared data
+            np.save('data/color_values_periodic_table.npy', data)
+
+                
+            #Define color for blank entries
+            default_value = None
+            color_list_all = []
+            data_values = []
+            data_values_str = []
+            for i in range(len(symbols)):
+                color_list_all.append([blank_color for ii in data[0,:]])
+                data_values.append([None for ii in data[0,:]])
+                data_values_str.append(['' for ii in data[0,:]])
+                
+            #Compare elements in dataset with elements in periodic table and set color etc. accordingly
+            from numpy import arange 
+            idx = arange(len(symbols))
+            for i, data_element in enumerate(data_elements):
+                element_entry = idx[symbols == data_element]
+                if len(element_entry)>0:
+                    element_index =element_entry[0]
+                else:
+                    print('WARNING: Invalid chemical symbol: '+data_element)
+                if color_list_all[element_index][0] != blank_color:
+                    print('WARNING: Multiple entries for element '+data_element)
+
+                for j in range(len(data[0,:])):
+                    color_list_all[element_index][j] = to_hex(color_scale[j][i])
+
+                # add data values that are shown by hover tool
+                data_values[element_index] = data[i,:]
+                for j in range(len(data[i])):
+                    data_values_str[element_index][j] = dstr[i,j]%data[i,j]
+
+            color_list_all = array(color_list_all)
+            data_values = array(data_values)
+            data_values_str = array(data_values_str)
+            
+            # store big arrays
+            color_list_all_allEF.append(color_list_all)
+            data_values_allEF.append(data_values)
+            data_values_str_allEF.append(data_values_str)
+
+
+
+        #Define figure properties for visualizing data
+        source_allEF = []
+        ii = 0
+        for iEF in [3,0,1,2,3]: # first entry is active values (i.e. without EF shift)
+            dictdata = dict(plot_component=[0 for x in groups],
+                            group=[str(x) for x in groups],
+                            period=[str(y) for y in periods],
+                            sym=symbols,
+                            atomic_number=atomic_numbers,
+                            type_color=color_list_all_allEF[iEF][:,0],
+                            type_color0=color_list_all_allEF[iEF][:,0],
+                            type_color1=color_list_all_allEF[iEF][:,1],
+                            type_color2=color_list_all_allEF[iEF][:,2],
+                            type_color3=color_list_all_allEF[iEF][:,3],
+                            type_color4=color_list_all_allEF[iEF][:,4],
+                            type_color5=color_list_all_allEF[iEF][:,5],
+                            type_color6=color_list_all_allEF[iEF][:,6],
+                            type_color7=color_list_all_allEF[iEF][:,7],
+                            type_color8=color_list_all_allEF[iEF][:,8],
+                            type_color9=color_list_all_allEF[iEF][:,9],
+                            type_color10=color_list_all_allEF[iEF][:,10],
+                            type_color11=color_list_all_allEF[iEF][:,11],
+                            type_color12=color_list_all_allEF[iEF][:,12],
+                            num_impcalcs=data_values_allEF[iEF][:,0],
+                            num_impcalcs_str=data_values_str_allEF[iEF][:,0],
+                            rms_mean=data_values_allEF[iEF][:,1],
+                            rms_mean_str=data_values_str_allEF[iEF][:,1],
+                            rms_std=data_values_allEF[iEF][:,2],
+                            rms_std_str=data_values_str_allEF[iEF][:,2],
+                            smom_mean=data_values_allEF[iEF][:,3],
+                            smom_mean_str=data_values_str_allEF[iEF][:,3],
+                            smom_std=data_values_allEF[iEF][:,4],
+                            smom_std_str=data_values_str_allEF[iEF][:,4],
+                            omom_mean=data_values_allEF[iEF][:,5],
+                            omom_mean_str=data_values_str_allEF[iEF][:,5],
+                            omom_std=data_values_allEF[iEF][:,6],
+                            omom_std_str=data_values_str_allEF[iEF][:,6],
+                            nummag=data_values_allEF[iEF][:,7],
+                            nummag_impcalcs_str=data_values_str_allEF[iEF][:,7],
+                            percent_mag=data_values_allEF[iEF][:,8],
+                            percent_mag_impcalcs_str=data_values_str_allEF[iEF][:,8],
+                            # additional fields for charge doping and DOS in Gap
+                            charge_doping_mean=data_values_allEF[iEF][:,9],
+                            charge_doping_mean_str=data_values_str_allEF[iEF][:,9],
+                            charge_doping_std=data_values_allEF[iEF][:,10],
+                            charge_doping_std_str=data_values_str_allEF[iEF][:,10],
+                            DOSinGap_mean=data_values_allEF[iEF][:,11],
+                            DOSinGap_mean_str=data_values_str_allEF[iEF][:,11],
+                            DOSinGap_std=data_values_allEF[iEF][:,12],
+                            DOSinGap_std_str=data_values_str_allEF[iEF][:,12]
+                            )
+
+            # save dictdata for later reuse
+            ii+=1
+            if ii>1: # skip first
+                np.save('data/source_periodic_table_{}.npy'.format(iEF), dictdata) 
+
+            # now create ColumnDataSource for bokeh plot
+            source_allEF.append(
+                ColumnDataSource(
+                    data=dictdata
+                )
+            )
+
+    else:
+
+        # load dictionary from file
+        source_allEF = []
+        ii = 0
+        for iEF in [3,0,1,2,3]:
+            dictdata = np.load('data/source_periodic_table_{}.npy'.format(iEF), allow_pickle=True).item()
+            source_allEF.append(
+                ColumnDataSource(
+                    data=dictdata
+                )
+            )
+
         # set up color scales
-        color_scale = []
+        data = np.load('data/color_values_periodic_table.npy')
         color_mapper_all = []
-        #print(EFset, len(data[0]))
         for color_component in range(len(data[0,:])):
-            #Define color map called 'color_scale'
+            cmin = min(data[:,color_component])
+            cmax = max(data[:,color_component])
             if log_scale == 0:
                 ColorMapper = LinearColorMapper
-                norm = Normalize(vmin = min(data[:,color_component]), vmax = max(data[:,color_component]))
+                norm = Normalize(vmin = cmin, vmax = cmax)
             elif log_scale == 1:
                 for datum in data[:,color_component]:
                     if datum < 0:
                         raise ValueError('Entry for element '+datum+' is negative but'
                         ' log-scale is selected')
                 ColorMapper = LogColorMapper
-                norm = LogNorm(vmin = min(data[:,color_component]), vmax = max(data[:,color_component]))
-
-            color_mapper_all.append(ColorMapper(palette = bokeh_palette, 
-                                                low=min(data[:,color_component]), 
-                                                high=max(data[:,color_component])))
-            color_scale.append(ScalarMappable(norm=norm, cmap=cmap).to_rgba(data[:,color_component], alpha=None))
-            
-        #Define color for blank entries
-        default_value = None
-        color_list_all = []
-        data_values = []
-        data_values_str = []
-        for i in range(len(symbols)):
-            color_list_all.append([blank_color for ii in data[0,:]])
-            data_values.append([None for ii in data[0,:]])
-            data_values_str.append(['' for ii in data[0,:]])
-            
-        #Compare elements in dataset with elements in periodic table and set color etc. accordingly
-        from numpy import arange 
-        idx = arange(len(symbols))
-        for i, data_element in enumerate(data_elements):
-            element_entry = idx[symbols == data_element]
-            if len(element_entry)>0:
-                element_index =element_entry[0]
-            else:
-                print('WARNING: Invalid chemical symbol: '+data_element)
-            if color_list_all[element_index][0] != blank_color:
-                print('WARNING: Multiple entries for element '+data_element)
-
-            for j in range(len(data[0,:])):
-                color_list_all[element_index][j] = to_hex(color_scale[j][i])
-
-            # add data values that are shown by hover tool
-            data_values[element_index] = data[i,:]
-            for j in range(len(data[i])):
-                data_values_str[element_index][j] = dstr[i,j]%data[i,j]
-
-        color_list_all = array(color_list_all)
-        data_values = array(data_values)
-        data_values_str = array(data_values_str)
-        
-        # store big arrays
-        color_list_all_allEF.append(color_list_all)
-        data_values_allEF.append(data_values)
-        data_values_str_allEF.append(data_values_str)
-
-
-
-    #Define figure properties for visualizing data
-    source_allEF = []
-    for iEF in [3,0,1,2,3]: # first entry is active values (i.e. without EF shift)
-        source_allEF.append(
-            ColumnDataSource(
-                data=dict(
-                    plot_component=[0 for x in groups],
-                    group=[str(x) for x in groups],
-                    period=[str(y) for y in periods],
-                    sym=symbols,
-                    atomic_number=atomic_numbers,
-                    type_color=color_list_all_allEF[iEF][:,0],
-                    type_color0=color_list_all_allEF[iEF][:,0],
-                    type_color1=color_list_all_allEF[iEF][:,1],
-                    type_color2=color_list_all_allEF[iEF][:,2],
-                    type_color3=color_list_all_allEF[iEF][:,3],
-                    type_color4=color_list_all_allEF[iEF][:,4],
-                    type_color5=color_list_all_allEF[iEF][:,5],
-                    type_color6=color_list_all_allEF[iEF][:,6],
-                    type_color7=color_list_all_allEF[iEF][:,7],
-                    type_color8=color_list_all_allEF[iEF][:,8],
-                    type_color9=color_list_all_allEF[iEF][:,9],
-                    type_color10=color_list_all_allEF[iEF][:,10],
-                    type_color11=color_list_all_allEF[iEF][:,11],
-                    type_color12=color_list_all_allEF[iEF][:,12],
-                    num_impcalcs=data_values_allEF[iEF][:,0],
-                    num_impcalcs_str=data_values_str_allEF[iEF][:,0],
-                    rms_mean=data_values_allEF[iEF][:,1],
-                    rms_mean_str=data_values_str_allEF[iEF][:,1],
-                    rms_std=data_values_allEF[iEF][:,2],
-                    rms_std_str=data_values_str_allEF[iEF][:,2],
-                    smom_mean=data_values_allEF[iEF][:,3],
-                    smom_mean_str=data_values_str_allEF[iEF][:,3],
-                    smom_std=data_values_allEF[iEF][:,4],
-                    smom_std_str=data_values_str_allEF[iEF][:,4],
-                    omom_mean=data_values_allEF[iEF][:,5],
-                    omom_mean_str=data_values_str_allEF[iEF][:,5],
-                    omom_std=data_values_allEF[iEF][:,6],
-                    omom_std_str=data_values_str_allEF[iEF][:,6],
-                    nummag=data_values_allEF[iEF][:,7],
-                    nummag_impcalcs_str=data_values_str_allEF[iEF][:,7],
-                    percent_mag=data_values_allEF[iEF][:,8],
-                    percent_mag_impcalcs_str=data_values_str_allEF[iEF][:,8],
-                    # additional fields for charge doping and DOS in Gap
-                    charge_doping_mean=data_values_allEF[iEF][:,9],
-                    charge_doping_mean_str=data_values_str_allEF[iEF][:,9],
-                    charge_doping_std=data_values_allEF[iEF][:,10],
-                    charge_doping_std_str=data_values_str_allEF[iEF][:,10],
-                    DOSinGap_mean=data_values_allEF[iEF][:,11],
-                    DOSinGap_mean_str=data_values_str_allEF[iEF][:,11],
-                    DOSinGap_std=data_values_allEF[iEF][:,12],
-                    DOSinGap_std_str=data_values_str_allEF[iEF][:,12]
-                )
-            )
-        )
+                norm = LogNorm(vmin = cmin, vmax = cmax)
+            color_mapper_all.append(ColorMapper(palette = bokeh_palette, low=cmin, high=cmax))
 
     return source_allEF
 
@@ -270,7 +313,7 @@ def get_periodic_table_plot():
     symbols, atomic_numbers, groups, periods, group_range, period_label = initialize_periodic_table()
 
     # get ColumnDataSource for values on periodic table
-    source_allEF = get_data_on_perdic_table()
+    source_allEF = get_data_on_perdic_table(load_data=True)
 
     # EF=0 starting values
     source = source_allEF[0]
@@ -478,9 +521,3 @@ def periodic_table_with_buttons():
     complete_periodic_table_plot = add_buttons_to_periodic_table(ptable_plot, source, all_sources, color_bar)
 
     return complete_periodic_table_plot
-
-# standalone version
-layout_periodic_table = pn.Column(judit_header, periodic_table_with_buttons(), judit_footer)
-
-
-layout_periodic_table.servable()
