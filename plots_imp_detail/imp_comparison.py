@@ -5,7 +5,7 @@ from plots_imp_detail.imp_detail import plot_impdos
 import panel as pn
 from bokeh.palettes import Set1_8 as palette
 from plots_imp_detail.imp_detail import get_impdata_by_name
-from about import judit_footer
+from about import judit_footer, judit_header
 
 def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alpha=0.8,
                     size=10, plot_width=600, plot_height=200, oldfig=None, yrange_min=None):
@@ -80,7 +80,7 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
     title = pn.Row(pn.Column(pn.pane.HTML('<br></br>'),
                              pn.pane.Markdown("### Physical properties of the impurity", width=500),
                             ),
-                   pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
+                   #pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
                   )
     scatterplots = pn.Column(title, scatterplot0)
     scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'orb mom.',
@@ -99,7 +99,7 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
     
     # create info text
     info_text = pn.pane.Markdown("""
-# JuDiT Impurity comparison page
+## Impurity comparison page
 
 
 Comparison plots for the selected impurities.
@@ -115,7 +115,8 @@ The colors used in the DOS plot are reused for the datapoints in the plots showi
     """, width=600)
 
 
-    output_imp_cmp = pn.Column(pn.Row(pn.Column(info_text,
+    output_imp_cmp = pn.Column(judit_header,
+                               pn.Row(pn.Column(info_text,
                                                 impdos_plot),
                                       scatterplots
                                      ),

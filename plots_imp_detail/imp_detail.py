@@ -7,7 +7,7 @@ from ase_notebook import ViewConfig, AseView
 from plots_host_system.global_settings import *
 import bokeh.plotting as bkp
 from plots_overview.load_data import load_all 
-from about import judit_footer
+from about import judit_footer, judit_header
 
 
 def prepare_plotting_structure(return_struc=False):
@@ -505,7 +505,7 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
     
     global imp_properties_all, all_DOSingap, all_dc
 
-    if 1:#try:
+    try:
     
         impdata, _ = get_impdata_by_name(impname, imp_properties_all, all_DOSingap, all_dc)
 
@@ -521,17 +521,17 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
 
         # add title text
         title = pn.Row(pn.Column(#pn.pane.HTML('<br></br>'),
-                                 pn.pane.Markdown("# Impurity detail page", width=700),
+                                 pn.pane.Markdown("## Impurity detail page", width=700),
                                 ),
-                       pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
+                       #pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
                       )
 
         display_all = pn.Row(impdos_plot, strucview_imp)
 
         # add output of calculation details
-        display_all = pn.Column(title, display_all, pn.pane.Markdown(out_text_details), judit_footer)
+        display_all = pn.Column(judit_header, title, display_all, pn.pane.Markdown(out_text_details), judit_footer)
         
-    else:#except:
+    except:
         display_all = pn.pane.Markdown("Error loading impurity: {}".format(impname))
         
         

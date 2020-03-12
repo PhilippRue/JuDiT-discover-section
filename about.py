@@ -3,14 +3,15 @@ import panel as pn
 from global_settings import website_width, DOI_DATABASE_MC_ARCHIVE
 
 judit_header = pn.Column(
-    pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='150'/>"
-                 ""
-                 "\n"
-                 ""
-                , width=website_width),
-    pn.pane.Markdown("# *JuDiT* "
-                , width=website_width),
-    pn.pane.Markdown("### **Jü**lich **D**atabase of **i**mpurities embedded into a **T**opological insulator"
+    pn.Row(
+        pn.pane.PNG("images/JuDiT_logo_round.png", width=400),
+        pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='150'/>"
+                    ""
+                    "\n"
+                    ""
+                    , width=website_width),
+    ),
+    pn.pane.Markdown("## **Jü**lich **D**atabase of **i**mpurities embedded into a **T**opological insulator"
                 , width=website_width),
     pn.pane.LaTeX("A collection first principles calculations for impurities embedded into the strong topological insulator Sb$_2$Te$_3$."
                 , width=website_width),
@@ -59,7 +60,10 @@ acknowledgements = markdown.markdown(
     "VITI Programme of the Helmholtz Association, as well as the\n" 
     "Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) \n"
     "under Germany's Excellence Strategy - Cluster of Excellence Matter \n"
-    "and Light for Quantum Computing (ML4Q) EXC 2004/1 - 390534769."
+    "and Light for Quantum Computing (ML4Q) EXC 2004/1 - 390534769.\n"
+    "Furthermore, this work was supported by the MaX Center of Excellence funded by the EU \n"
+    "through the H2020-EINFRA-2015-1 project: GA 676598 as well as by the \n"
+    "Joint Lab Virtual Materials Design (JLVMD) of the Forschungszentrum Jülich."
 )
 
 used_software = markdown.markdown(
@@ -106,7 +110,6 @@ judit_footer = pn.Column(
                      +"* [AiiDA](http://www.aiida.net)\n"
                      +"* [MaterialsCloud](https://www.materialscloud.org)\n"
                      +"\n"
-                     +"JuDiT database version: {}\n\n".format(DOI_DATABASE_MC_ARCHIVE)
                      +"[Contact: Dr. Philipp Rüßmann](mailto:p.ruessmann@fz-juelich.de?subject=[JuDiT])\n\n"
                      +"[© Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)\n"
                      +"</small>\n"
