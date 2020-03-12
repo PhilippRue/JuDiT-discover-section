@@ -39,8 +39,8 @@ formatters = {'Zimp': formatter_int,
 
 def get_scatter_column_data_source():
 
-    imp_properties_all, imp_properties_sorted, all_DOSingap, all_DOSingap_sorted, all_dc, all_dc_sorted = load_all()
-    symbols, atomic_numbers, groups, periods, group_range, period_label = initialize_periodic_table()
+    imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
+    symbols, atomic_numbers, _, _, _, _ = initialize_periodic_table()
 
 
     out_all = []

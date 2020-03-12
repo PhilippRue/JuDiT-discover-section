@@ -1,2 +1,1 @@
 ### Overview of impurity properties
-

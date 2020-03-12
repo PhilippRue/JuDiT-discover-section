@@ -1,8 +1,13 @@
 from aiida.orm import load_node
 
+
+def load_imp_properties():
+    imp_properties_all = load_node('3e65d6eb-d25e-48c3-8727-c969da1aff42')
+    return imp_properties_all
+
 def load_and_sort_imp_properties_by_EFval():
 
-    imp_properties_all = load_node('3e65d6eb-d25e-48c3-8727-c969da1aff42')
+    imp_properties_all = load_imp_properties()
 
     # sort data according to EF value
     imp_properties_sorted = {}
