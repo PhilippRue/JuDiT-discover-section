@@ -7,7 +7,7 @@ from ase_notebook import ViewConfig, AseView
 from plots_host_system.global_settings import *
 import bokeh.plotting as bkp
 from plots_overview.load_data import load_all 
-
+from about import judit_footer
 
 
 def prepare_plotting_structure(return_struc=False):
@@ -224,24 +224,11 @@ def print_ordered_output_dir(resdict, return_text=False):
             'kkrimp_calculation_plugin_version'
         ]],
 
-        ['General settings KKR', [
-            'lmax', 
-            'XC', 
-            'Nepts',
-            'kmesh_GFwriteout',
-            'nspin',
-            'with_soc',
-            'Delta_EF'
-        ]],
-
         ['Impurity cluster', [
             'atoms_in_impurity_cluster',
             'ilayer',
             'zimp',
             'zhost',
-            #'impcls_ilayer',
-            #'impcls_position',
-            #'impcls_zhost'
         ]],
 
         ['Convergence / results', [
@@ -518,7 +505,7 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
     
     global imp_properties_all, all_DOSingap, all_dc
 
-    try:
+    if 1:#try:
     
         impdata, _ = get_impdata_by_name(impname, imp_properties_all, all_DOSingap, all_dc)
 
@@ -542,9 +529,9 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
         display_all = pn.Row(impdos_plot, strucview_imp)
 
         # add output of calculation details
-        display_all = pn.Column(title, display_all, pn.pane.Markdown(out_text_details), footer)
+        display_all = pn.Column(title, display_all, pn.pane.Markdown(out_text_details), judit_footer)
         
-    except:
+    else:#except:
         display_all = pn.pane.Markdown("Error loading impurity: {}".format(impname))
         
         

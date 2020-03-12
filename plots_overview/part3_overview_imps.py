@@ -2,9 +2,6 @@
 # coding: utf-8
 
 
-from IPython.display import display
-
-
 import panel as pn
 
 pn.extension()
@@ -15,7 +12,9 @@ from aiida import load_profile
 profile = load_profile()
 
 
-totimp_num_text = '#### Total number of impurities: {}'.format(len(list(imp_properties_all.keys())))
+from plots_overview.load_data import load_imp_properties
+
+totimp_num_text = '#### Total number of impurities: {}'.format(len(list(load_imp_properties().keys())))
 print(totimp_num_text)
 
 
@@ -28,6 +27,9 @@ tap = TapTool(callback=callback_tap)
 
 scatterplot.add_tools(tap)
 """
+
+from plots_overview.plot_periodic_table import periodic_table_with_buttons
+from plots_overview.scatter_plot import make_scatterplot_with_hist
 
 
 layout_periodic_table = periodic_table_with_buttons()

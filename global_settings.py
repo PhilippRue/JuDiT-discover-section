@@ -12,3 +12,8 @@ gapstart = -0.062  #-0.06
 
 UUID_HOST_DOS = 'edb8f4ec-38a0-46c9-9334-4448915aebb1'
 UUID_HOST_BANDSTRUC = 'd3a077c4-967e-41a1-9817-a687e8ab475d'
+
+
+DOI_DATABASE_MC_ARCHIVE = None
+
+website_width = 1000

@@ -12,7 +12,7 @@ def prepare_plotting_structure(return_struc=False, show_empty_atoms=False):
 
     # find and plot structure, extract if from parent of bandstructure calc
     Sb2Te3_6QL_bandstruc = load_node(UUID_HOST_BANDSTRUC) # -0.5eV..+0.3eV, corrected K-path
-    structure0, voro_calc = VoronoiCalculation.find_parent_structure(Sb2Te3_6QL_bandstruc)
+    structure0, _ = VoronoiCalculation.find_parent_structure(Sb2Te3_6QL_bandstruc)
 
     if structure0.has_vacancies:
         cell = structure0.cell

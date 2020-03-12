@@ -32,10 +32,9 @@ spinner_text = """
 </div>
 """
 
-
-footer = pn.pane.Markdown("""
-Database version: XXXXX
-
-[© Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)
-""")
+#footer = pn.pane.Markdown("""
+#Database version: XXXXX
+#
+#[© Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)
+#""")
 

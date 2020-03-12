@@ -5,7 +5,7 @@ from plots_imp_detail.imp_detail import plot_impdos
 import panel as pn
 from bokeh.palettes import Set1_8 as palette
 from plots_imp_detail.imp_detail import get_impdata_by_name
-from plots_imp_detail import footer
+from about import judit_footer
 
 def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alpha=0.8,
                     size=10, plot_width=600, plot_height=200, oldfig=None, yrange_min=None):
@@ -119,7 +119,7 @@ The colors used in the DOS plot are reused for the datapoints in the plots showi
                                                 impdos_plot),
                                       scatterplots
                                      ),
-                               footer
+                               judit_footer
                               )
     
     output_imp_cmp.show(title="Impurity comparison page")
