@@ -113,4 +113,4 @@ judit_footer = pn.Column(
                      +"[Contact: Dr. Philipp Rüßmann](mailto:p.ruessmann@fz-juelich.de?subject=[JuDiT])\n\n"
                      +"[© Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)\n"
                      +"</small>\n"
-                    ))
+                    , width=website_width))
