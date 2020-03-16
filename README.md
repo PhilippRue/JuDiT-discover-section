@@ -8,7 +8,7 @@ This app visualizes the contents of the JuDiT database of impurities embedded in
 ```
 git clone https://github.com/PhilippRue/JuDiT-discover-section.git
 cd JuDiT-discover-section
-pip install -e .     # install python dependencies
+pip install -e judit-app   # install python dependencies
 ./prepare.sh         # pre-collect datatables etc. for faster access (run only once)
 ```
 

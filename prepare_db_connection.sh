@@ -9,6 +9,8 @@ set -x
 #===============================================================================
 
 # write AiiDA config file
+echo "writing config file: $AIIDA_PATH/config.json"
+mkdir -p $AIIDA_PATH
 cat > $AIIDA_PATH/config.json <<EOF
 {
     "CONFIG_VERSION": {
@@ -33,5 +35,8 @@ cat > $AIIDA_PATH/config.json <<EOF
     }
 }
 EOF
+
+echo "contents of config file:"
+cat $AIIDA_PATH/config.json
 
 #EOF

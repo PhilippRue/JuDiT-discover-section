@@ -2,12 +2,13 @@ version: '2'
 
 services:
   bokeh:
+    image: judit_discover_section
     restart: always
     build:
       context: .
       dockerfile: Dockerfile
     environment:
     volumes:
-     - '/tmp:/app/.aiida/repository/judit'
+      - '/Local/ruess/.aiida/repository/judit-test/:/app/.aiida/repository/judit/'
     ports:
       - '5006:5006'

@@ -8,7 +8,9 @@ set -x
 
 #===============================================================================
 
-# prepare data for faster access
+# prepare data for faster access, this extracts data from the database 
+# which would slow the buildup time of the website down
+# results are saved in judit-app/data/*npy files
 ./prepare_data.py
 
 # now serve the app (uses bokeh server in the background)
