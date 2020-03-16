@@ -163,7 +163,7 @@ def get_data_on_perdic_table(load_data=False):
                 color_scale.append(ScalarMappable(norm=norm, cmap=cmap).to_rgba(data[:,color_component], alpha=None))
 
             # save data array to be able to generate color_mapper_all from prepared data
-            np.save('data/color_values_periodic_table.npy', data)
+            np.save('judit-app/data/color_values_periodic_table.npy', data)
 
                 
             #Define color for blank entries
@@ -262,7 +262,7 @@ def get_data_on_perdic_table(load_data=False):
             # save dictdata for later reuse
             ii+=1
             if ii>1: # skip first
-                np.save('data/source_periodic_table_{}.npy'.format(iEF), dictdata) 
+                np.save('judit-app/data/source_periodic_table_{}.npy'.format(iEF), dictdata) 
 
             # now create ColumnDataSource for bokeh plot
             source_allEF.append(
@@ -277,7 +277,7 @@ def get_data_on_perdic_table(load_data=False):
         source_allEF = []
         ii = 0
         for iEF in [3,0,1,2,3]:
-            dictdata = np.load('data/source_periodic_table_{}.npy'.format(iEF), allow_pickle=True).item()
+            dictdata = np.load('judit-app/data/source_periodic_table_{}.npy'.format(iEF), allow_pickle=True).item()
             source_allEF.append(
                 ColumnDataSource(
                     data=dictdata
@@ -285,7 +285,7 @@ def get_data_on_perdic_table(load_data=False):
             )
 
         # set up color scales
-        data = np.load('data/color_values_periodic_table.npy')
+        data = np.load('judit-app/data/color_values_periodic_table.npy')
         color_mapper_all = []
         for color_component in range(len(data[0,:])):
             cmin = min(data[:,color_component])

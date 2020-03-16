@@ -95,9 +95,9 @@ def get_Nimps(load_data=False):
 
     if not load_data:
         Nimps = len(list(load_imp_properties().keys()))
-        np.save('data/n_imps.npy', Nimps)
+        np.save('judit-app/data/n_imps.npy', Nimps)
     else:
-        Nimps = np.load('data/n_imps.npy')
+        Nimps = np.load('judit-app/data/n_imps.npy')
 
     return Nimps
 
@@ -115,13 +115,13 @@ def make_overview_panels():
     times+= [time()]
 
 
-    layout_periodic_table = pn.pane.PNG('images/statuc_image_periodic_table.png', width=int(website_width*0.8), 
+    layout_periodic_table = pn.pane.PNG('judit-app/images/statuc_image_periodic_table.png', width=int(website_width*0.8), 
                                         link_url='main_periodic_table')
     #from plots_overview.plot_periodic_table import periodic_table_with_buttons
     #layout_periodic_table = periodic_table_with_buttons()
 
 
-    layout_with_hist = pn.pane.PNG('images/static_image_scatter_plot.png', width=int(website_width*0.8), 
+    layout_with_hist = pn.pane.PNG('judit-app/images/static_image_scatter_plot.png', width=int(website_width*0.8), 
                                 link_url='main_scatterplot_site')
     #from plots_overview.scatter_plot import make_scatterplot_with_hist
     #layout_with_hist = make_scatterplot_with_hist()

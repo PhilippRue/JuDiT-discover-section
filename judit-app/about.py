@@ -4,7 +4,7 @@ from global_settings import website_width, DOI_DATABASE_MC_ARCHIVE
 
 judit_header = pn.Column(
     pn.Row(
-        pn.pane.PNG("images/JuDiT_logo_round.png", width=400),
+        pn.pane.PNG("judit-app/images/JuDiT_logo_round.png", width=400),
         pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='200'/>"
                     ""
                     "\n"

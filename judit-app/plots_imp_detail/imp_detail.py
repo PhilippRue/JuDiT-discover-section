@@ -557,13 +557,13 @@ def preload_data(load_data=False):
     t1 = time()
     if not load_data:
         imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
-        np.save('data/imp_properties.npy', imp_properties_all)
-        np.save('data/all_DOSingap.npy', all_DOSingap)
-        np.save('data/all_dc.npy', all_dc)
+        np.save('judit-app/data/imp_properties.npy', imp_properties_all)
+        np.save('judit-app/data/all_DOSingap.npy', all_DOSingap)
+        np.save('judit-app/data/all_dc.npy', all_dc)
     else:
-        imp_properties_all = np.load('data/imp_properties.npy', allow_pickle=True).item()
-        all_DOSingap = np.load('data/all_DOSingap.npy', allow_pickle=True).item()
-        all_dc = np.load('data/all_dc.npy', allow_pickle=True).item()
+        imp_properties_all = np.load('judit-app/data/imp_properties.npy', allow_pickle=True).item()
+        all_DOSingap = np.load('judit-app/data/all_DOSingap.npy', allow_pickle=True).item()
+        all_dc = np.load('judit-app/data/all_dc.npy', allow_pickle=True).item()
     t2 = time()
     print('timings preload_data:', t1-t0, t2-t1)
 

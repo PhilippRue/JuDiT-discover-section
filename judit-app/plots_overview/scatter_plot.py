@@ -152,11 +152,11 @@ def get_scatter_column_data_source(load_data=False):
         dictdata['color'] = dictdata['color_'+name0c]
 
         # save dictdata to file for later reuse
-        np.save('data/scatter_source.npy', dictdata) 
+        np.save('judit-app/data/scatter_source.npy', dictdata) 
 
     else:
         # Load from file
-        dictdata = np.load('data/scatter_source.npy',allow_pickle='TRUE').item()
+        dictdata = np.load('judit-app/data/scatter_source.npy',allow_pickle='TRUE').item()
 
     # save as ColumnDataSource
     source_scatter = ColumnDataSource(data=dictdata)

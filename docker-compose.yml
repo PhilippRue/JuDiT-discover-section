@@ -6,10 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["/opt/serve-app.sh"]
     environment:
-      BOKEH_PREFIX: /judit
-      EXPLORE_URL: "https://dev-www.materialscloud.org/explore/judit" 
     volumes:
      - '/tmp:/app/.aiida/repository/judit'
     ports:

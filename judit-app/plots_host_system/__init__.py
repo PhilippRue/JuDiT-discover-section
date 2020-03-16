@@ -28,7 +28,7 @@ legend = pn.pane.Markdown("#### Legend\n"
 
 
 def get_static_host_plots():
-    host_plots_static = pn.pane.PNG('./images/static_image_host_plots.png', width=int(0.8*website_width), 
+    host_plots_static = pn.pane.PNG('judit-app/images/static_image_host_plots.png', width=int(0.8*website_width), 
                                     link_url='standalone') # link to standalone page
     host_plots_static = pn.Column(host_system_header, host_plots_static, legend, )
     return host_plots_static
