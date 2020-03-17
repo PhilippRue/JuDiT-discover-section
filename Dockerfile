@@ -9,7 +9,7 @@ ENV AIIDA_PROFILE judit
 ENV AIIDADB_ENGINE postgresql_psycopg2
 ENV AIIDADB_PASS aiida
 ENV AIIDADB_NAME judit
-ENV AIIDADB_HOST localhost
+ENV AIIDADB_HOST host.docker.internal
 ENV AIIDADB_BACKEND django
 ENV AIIDADB_PORT 5432
 ENV AIIDADB_REPOSITORY_URI file:///app/.aiida/repository/judit
