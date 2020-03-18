@@ -173,36 +173,13 @@ class Select_Impurity():
 
 
 def callback_selection_button(b):
-    """Callback function that happens if button in clicked."""
+    """Callback function that updates the output text."""
 
     global imp_select
-    global spinner, spinner_text
     global output_pane
-    global imp_properties_all, all_DOSingap, all_dc
-    
-    # show spinner to visualize busy state
-    spinner.object = spinner_text
-    
+        
     # get list of selected impurities
     list_show_imps = imp_select.selection_widget.value
-    
-    # extract impname and open imp detail page / or comp
-    if len(list_show_imps)==1: # single impurity
-        # update impurity detail page  with new data 
-        impname = get_impname_label(list_show_imps[0])
-        open_link = "http://localhost:5006/judit/main_imp_detail?id={}".format(impname)
-        print('open url:', open_link)
-        show_session(url=open_link)
-    elif len(list_show_imps)>1: # multiple imps selected
-        # create page that compares the impurity properties, open new tab
-        list_show_imps_str = ''
-        for i in list_show_imps:
-            list_show_imps_str+=' '+i.replace(' ', '%')
-        open_link = "http://localhost:5006/judit/main_imp_comparison?id={}".format(list_show_imps_str)
-        print('open url:', open_link)
-        show_session(url=open_link)
-    else:
-        print('no impurity selected')
         
     # create a string that shows the current selection in output pane
     str_imp_list = 'no impurity selected'
@@ -213,8 +190,41 @@ def callback_selection_button(b):
         str_imp_list = 'Selected impurities:\n\n{}'.format(str_imp_list)
     output_pane.object = open_link+'\n'+'{}'.format(str_imp_list)
     
-    # close spinner
-    spinner.object = ""
+
+#inputs: spinner, imp_select, spinner_text
+callback_selection_button_js="""
+var list_show_imps;
+var open_link;
+var list_show_imps_str;
+var str_imp_list;
+
+// show spinner to visualize busy state
+spinner.object = spinner_text;
+
+// get list of selected impurities
+list_show_imps = imp_select.selection_widget.value;
+
+// open imp detail page
+if (list_show_imps.length===1){
+    // update impurity detail page  with new data 
+    open_link = "http://localhost:5006/judit/main_imp_detail?id="+list_show_imps[0];
+    console.log('Opening url:'+open_link);
+    //window.open(open_link);
+}
+
+// open imp comparison page
+if (list_show_imps.length>1){
+    // create page that compares the impurity properties, open new tab
+    list_show_imps_str = list_show_imps.join();
+    open_link = "http://localhost:5006/judit/main_imp_comparison?id="+list_show_imps_str;
+    console.log('Opening url:'+open_link);
+    //window.open(open_link);
+}
+
+// close spinner
+spinner.object = "";
+"""
+
 
 
 def reset_values(b):
@@ -245,6 +255,8 @@ def get_buttons_with_callbacks():
     # add button and output pane to show selection
     button = pn.widgets.Button(name="Show impurity details in new tab", button_type="primary")
     button.on_click(callback_selection_button)
+    button.js_on_click(args={'spinner': spinner, 'imp_select': imp_select, 'spinner_text': spinner_text},
+                       code=callback_selection_button_js)
 
     button_reset_selection = pn.widgets.Button(name="Reset selection", button_type="primary", width_policy='min')
     button_reset_selection.on_click(reset_values)

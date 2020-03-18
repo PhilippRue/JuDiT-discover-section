@@ -9,11 +9,14 @@ ENV AIIDA_PROFILE judit
 ENV AIIDADB_ENGINE postgresql_psycopg2
 ENV AIIDADB_PASS aiida
 ENV AIIDADB_NAME judit
-ENV AIIDADB_HOST host.docker.internal
+ENV AIIDADB_HOST localhost
+#ENV AIIDADB_HOST host.docker.internal
 ENV AIIDADB_BACKEND django
 ENV AIIDADB_PORT 5432
-ENV AIIDADB_REPOSITORY_URI file:///Users/ruess/sourcecodes/aiida/JuDiT_webinterface/venv/.aiida/repository/judit
-ENV AIIDADB_USER aiida
+#ENV AIIDADB_REPOSITORY_URI file:///Users/ruess/sourcecodes/aiida/JuDiT_webinterface/venv/.aiida/repository/judit
+#ENV AIIDADB_USER aiida
+ENV AIIDADB_REPOSITORY_URI file:///app/.aiida/repository/judit
+ENV AIIDADB_USER ruess
 ENV default_user_email p.ruessmann@fz-juelich.de
 
 # Materials Cloud vars
