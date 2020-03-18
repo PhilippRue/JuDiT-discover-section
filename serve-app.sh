@@ -18,6 +18,8 @@ panel serve judit-app/judit_website_main.ipynb \
             judit-app/plots_host_system/standalone.py \
             judit-app/plots_overview/main_periodic_table.py \
             judit-app/plots_overview/main_scatterplot_site.py \
+            judit-app/plots_imp_detail/main_imp_detail.py \
+            judit-app/plots_imp_detail/main_imp_comparison.py \
     --port 5006                 \
     --log-level debug           \
     --allow-websocket-origin "*" \

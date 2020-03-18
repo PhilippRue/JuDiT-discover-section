@@ -7,9 +7,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
     volumes:
-      - '/Local/ruess/.aiida/repository/judit-test/:/app/.aiida/repository/judit/'
+      - '/Users/ruess/sourcecodes/aiida/JuDiT_webinterface/venv/.aiida/repository/judit:/app/.aiida/repository/judit/'
     ports:
       - "5432:5432"
       - "5006:5006"

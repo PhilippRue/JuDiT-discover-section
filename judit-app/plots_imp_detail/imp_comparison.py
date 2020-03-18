@@ -6,6 +6,7 @@ import panel as pn
 from bokeh.palettes import Set1_8 as palette
 from plots_imp_detail.imp_detail import get_impdata_by_name
 from about import judit_footer, judit_header
+from plots_imp_detail.imp_detail import preload_data
 
 def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alpha=0.8,
                     size=10, plot_width=600, plot_height=200, oldfig=None, yrange_min=None):
@@ -37,90 +38,101 @@ def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alph
 
 
 
-def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc): 
-    
-    source = {'Zimp':[], 'impurity index':[], 'spin mom.':[], 
-              'orb mom.':[], 'DOS in gap':[], 'charge doping':[],
-              'color':[]
-             }
-    
-    ii = 0
-    for iimp in list_show_imps:
-        impname_select = get_impname_label(iimp)
+def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc, return_full_page): 
+    if list_show_imps is not None:
+        source = {'Zimp':[], 'impurity index':[], 'spin mom.':[], 
+                'orb mom.':[], 'DOS in gap':[], 'charge doping':[],
+                'color':[]
+                }
+        
+        ii = 0
+        for iimp in list_show_imps:
+            impname_select = get_impname_label(iimp)
 
-        color = palette[ii%len(palette)]
+            color = palette[ii%len(palette)]
 
-        if ii==0:
-            impdos_plot = plot_impdos(impname_select, show_host_dos=True, show_l_channels=False, 
-                                      overwrite_label=iimp.split()[0], line_color=color)
-        else:
-            impdos_plot = plot_impdos(impname_select, show_host_dos=False, show_l_channels=False, 
-                                      reuse_fig=impdos_plot, add_bulk_gap_region=False, 
-                                      overwrite_label=iimp.split()[0], line_color=color)
+            if ii==0:
+                impdos_plot = plot_impdos(impname_select, show_host_dos=True, show_l_channels=False, 
+                                        overwrite_label=iimp.split()[0], line_color=color)
+            else:
+                impdos_plot = plot_impdos(impname_select, show_host_dos=False, show_l_channels=False, 
+                                        reuse_fig=impdos_plot, add_bulk_gap_region=False, 
+                                        overwrite_label=iimp.split()[0], line_color=color)
+                
+
+            impdata, _ = get_impdata_by_name(impname_select, imp_properties_all, 
+                                                    all_DOSingap, all_dc, noref=True)
+
+            source['Zimp'].append(impdata['zimp'])
+            source['impurity index'].append(ii)
+            source['spin mom.'].append(impdata['spin_moment_imp'][-1])
+            source['orb mom.'].append(impdata['orbital_moment_imp'][-1])
+            source['DOS in gap'].append(impdata['DOS_in_gap'])
+            source['charge doping'].append(impdata['charge_doping'])
+            source['color'].append(color)
             
-
-        impdata, _ = get_impdata_by_name(impname_select, imp_properties_all, 
-                                                   all_DOSingap, all_dc, noref=True)
-
-        source['Zimp'].append(impdata['zimp'])
-        source['impurity index'].append(ii)
-        source['spin mom.'].append(impdata['spin_moment_imp'][-1])
-        source['orb mom.'].append(impdata['orbital_moment_imp'][-1])
-        source['DOS in gap'].append(impdata['DOS_in_gap'])
-        source['charge doping'].append(impdata['charge_doping'])
-        source['color'].append(color)
+            ii+=1
+            
+        source = bkp.ColumnDataSource(data=source)
         
-        ii+=1
+        # create scatter plots
+        scatterplot0 = get_scatterplot(source, 'impurity index', 'spin mom.', 'impurity index', 
+                                    'spin moment (mu_B)', 'Spin moment', yrange_min=(-0.1,0.1))
+        title = pn.Row(pn.Column(pn.pane.HTML('<br></br>'),
+                                pn.pane.Markdown("### Physical properties of the impurity", width=500),
+                                ),
+                    #pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
+                    )
+        scatterplots = pn.Column(title, scatterplot0)
+        scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'orb mom.',
+                                                            'impurity index', 'orbital moment (mu_B)',
+                                                            'Orbital moment', oldfig=scatterplot0,
+                                                            yrange_min=(-0.1,0.1)
+                                                            ))
+        scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'DOS in gap',
+                                                            'impurity index', 'DOS in gap (e/impurity)',
+                                                            'DOS in gap', oldfig=scatterplot0
+                                                            ))
+        scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'charge doping',
+                                                            'impurity index', 'charge doping (e/impurity)',
+                                                            'Charge doping', oldfig=scatterplot0
+                                                            ))
         
-    source = bkp.ColumnDataSource(data=source)
-    
-    # create scatter plots
-    scatterplot0 = get_scatterplot(source, 'impurity index', 'spin mom.', 'impurity index', 
-                                   'spin moment (mu_B)', 'Spin moment', yrange_min=(-0.1,0.1))
-    title = pn.Row(pn.Column(pn.pane.HTML('<br></br>'),
-                             pn.pane.Markdown("### Physical properties of the impurity", width=500),
-                            ),
-                   #pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
-                  )
-    scatterplots = pn.Column(title, scatterplot0)
-    scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'orb mom.',
-                                                           'impurity index', 'orbital moment (mu_B)',
-                                                           'Orbital moment', oldfig=scatterplot0,
-                                                           yrange_min=(-0.1,0.1)
-                                                           ))
-    scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'DOS in gap',
-                                                           'impurity index', 'DOS in gap (e/impurity)',
-                                                           'DOS in gap', oldfig=scatterplot0
-                                                           ))
-    scatterplots = pn.Column(scatterplots, get_scatterplot(source, 'impurity index', 'charge doping',
-                                                           'impurity index', 'charge doping (e/impurity)',
-                                                           'Charge doping', oldfig=scatterplot0
-                                                           ))
-    
-    # create info text
-    info_text = pn.pane.Markdown("""
-## Impurity comparison page
+        # create info text
+        info_text = pn.pane.Markdown("""
+    ## Impurity comparison page
 
 
-Comparison plots for the selected impurities.
-Shown are 
+    Comparison plots for the selected impurities.
+    Shown are 
 
-* impurity density of states
-* impurity properties vs. impurities
-    * spin and orbital moment
-    * DOS in gap
-    * charge doping
+    * impurity density of states
+    * impurity properties vs. impurities
+        * spin and orbital moment
+        * DOS in gap
+        * charge doping
 
-The colors used in the DOS plot are reused for the datapoints in the plots showing the physical properties (right column).
-    """, width=600)
+    The colors used in the DOS plot are reused for the datapoints in the plots showing the physical properties (right column).
+        """, width=600)
+
+        output_imp_cmp_update =  pn.Row(pn.Column(info_text,
+                                                    impdos_plot),
+                                        scatterplots
+                                        )
+    else:
+        output_imp_cmp_update = pn.pane.Markdown("No impurities selected")
+
+    # build imp comparison page
+    output_imp_cmp_full = pn.Column(judit_header,
+                                    output_imp_cmp_update,
+                                    judit_footer
+                                    )
+
+    if return_full_page:
+        return output_imp_cmp_full
+    else:
+        return output_imp_cmp_update
+
+    #output_imp_cmp.show(title="Impurity comparison page", verbose=True)
 
 
-    output_imp_cmp = pn.Column(judit_header,
-                               pn.Row(pn.Column(info_text,
-                                                impdos_plot),
-                                      scatterplots
-                                     ),
-                               judit_footer
-                              )
-    
-    output_imp_cmp.show(title="Impurity comparison page")

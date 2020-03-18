@@ -3,11 +3,9 @@ import panel as pn
 import numpy as np
 from plots_overview.load_data import load_imp_properties
 from plots_imp_detail import spinner_text
-from plots_imp_detail.imp_detail import create_impsite
-from plots_imp_detail.imp_comparison import create_imp_comparison_page
 from plots_imp_detail.tools import get_impname_label
 from plots_imp_detail.imp_detail import preload_data
-
+from bokeh.client import show_session
 
 def prepare_imp_properties_lists(imp_properties_all):
 
@@ -189,13 +187,20 @@ def callback_selection_button(b):
     list_show_imps = imp_select.selection_widget.value
     
     # extract impname and open imp detail page / or comp
-    list_show_imps = imp_select.selection_widget.value
-    if len(list_show_imps)==1:
-        # open impurity detail page (single impurity)
-        create_impsite(get_impname_label(list_show_imps[0]), static_plot=True, open_new_tab=True)
-    elif len(list_show_imps)>1:
+    if len(list_show_imps)==1: # single impurity
+        # update impurity detail page  with new data 
+        impname = get_impname_label(list_show_imps[0])
+        open_link = "http://localhost:5006/judit/main_imp_detail?id={}".format(impname)
+        print('open url:', open_link)
+        show_session(url=open_link)
+    elif len(list_show_imps)>1: # multiple imps selected
         # create page that compares the impurity properties, open new tab
-        create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc)
+        list_show_imps_str = ''
+        for i in list_show_imps:
+            list_show_imps_str+=' '+i.replace(' ', '%')
+        open_link = "http://localhost:5006/judit/main_imp_comparison?id={}".format(list_show_imps_str)
+        print('open url:', open_link)
+        show_session(url=open_link)
     else:
         print('no impurity selected')
         
@@ -206,7 +211,7 @@ def callback_selection_button(b):
         for iimp in list_show_imps:
             str_imp_list += '* {}\n'.format(iimp)
         str_imp_list = 'Selected impurities:\n\n{}'.format(str_imp_list)
-    output_pane.object = '{}'.format(str_imp_list)
+    output_pane.object = open_link+'\n'+'{}'.format(str_imp_list)
     
     # close spinner
     spinner.object = ""

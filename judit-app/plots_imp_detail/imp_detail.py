@@ -501,12 +501,16 @@ def plot_impdos(impname, show_host_dos=True, show_l_channels=True, reuse_fig=Non
 
 
 
-def create_impsite(impname, static_plot=False, return_pane=False, change_old_pane=None, open_new_tab=False):
+def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_tab=False):
     
     global imp_properties_all, all_DOSingap, all_dc
+    global output_impsite
+
+    # add title text
+    title = pn.pane.Markdown("## Impurity detail page", width=700)
+
 
     try:
-    
         impdata, _ = get_impdata_by_name(impname, imp_properties_all, all_DOSingap, all_dc)
 
         strucview_imp = prepare_impcls_strucplot(impname, static_plot=static_plot)
@@ -519,30 +523,22 @@ def create_impsite(impname, static_plot=False, return_pane=False, change_old_pan
 
         impdos_plot = plot_impdos(impname)
 
-        # add title text
-        title = pn.Row(pn.Column(#pn.pane.HTML('<br></br>'),
-                                 pn.pane.Markdown("## Impurity detail page", width=700),
-                                ),
-                       #pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' width='150'/>"),
-                      )
-
         display_all = pn.Row(impdos_plot, strucview_imp)
-
-        # add output of calculation details
-        display_all = pn.Column(judit_header, title, display_all, pn.pane.Markdown(out_text_details), judit_footer)
-        
+        display_all = pn.Column(display_all, pn.pane.Markdown(out_text_details))
     except:
-        display_all = pn.pane.Markdown("Error loading impurity: {}".format(impname))
-        
+        if impname is not None:
+            display_all = pn.pane.Markdown("Error loading impurity: {}".format(impname))
+        else:
+            display_all = pn.pane.Markdown("No impurity selected yet. Go back to main page to select one.")
+
+    # combine different parts of the page
+    display_all = pn.Column(judit_header, title, display_all, judit_footer)
         
     if open_new_tab:
         output_impsite = display_all
         output_impsite.show(title="Impurity detail page")
     else:
-        if change_old_pane is not None:
-            change_old_pane.objects[0] = impname
-        else:
-            output_impsite = display_all
+        output_impsite = display_all
     
     if return_pane:
         return output_impsite
@@ -568,3 +564,5 @@ def preload_data(load_data=False):
     print('timings preload_data:', t1-t0, t2-t1)
 
     return imp_properties_all, all_DOSingap, all_dc
+
+
