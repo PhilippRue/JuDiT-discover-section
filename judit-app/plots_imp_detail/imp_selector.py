@@ -3,7 +3,6 @@ import panel as pn
 import numpy as np
 from plots_overview.load_data import load_imp_properties
 from plots_imp_detail import spinner_text
-from plots_imp_detail.tools import get_impname_label
 from plots_imp_detail.imp_detail import preload_data
 from bokeh.client import show_session
 
@@ -65,7 +64,8 @@ class Select_Impurity():
         bounds = (int(zhosts.min()), int(zhosts.max()))
         self.Zhost = pn.widgets.IntRangeSlider(start=bounds[0], end=bounds[1])
         
-        self.selection_widget = pn.widgets.MultiSelect(name='test', options=[], size=8)
+        self.selection_widget = pn.widgets.MultiSelect(name='Chose one or more impurities for detailed view', 
+                                                       options=[], size=8)
     
     
     def preselected_list(self):
@@ -158,10 +158,8 @@ class Select_Impurity():
     
         
     def view_preselected_list(self):
-        # update selection widget
-        impname_selection = self.preselected_list()
-        self.selection_widget = pn.widgets.MultiSelect(name='Chose one or more impurities for detailed view', 
-                                                       options=impname_selection, size=8)
+        # initialize selection widget
+        self.update_selection_list()
         
         return pn.Row(pn.Column(pn.Row(pn.pane.Markdown("EF value:", width=60), self.EF_value),
                                 pn.Row(pn.pane.Markdown("Zimp:", width=60), self.Zimp),
@@ -188,41 +186,15 @@ def callback_selection_button(b):
         for iimp in list_show_imps:
             str_imp_list += '* {}\n'.format(iimp)
         str_imp_list = 'Selected impurities:\n\n{}'.format(str_imp_list)
-    output_pane.object = open_link+'\n'+'{}'.format(str_imp_list)
+    output_pane.object = '{}'.format(str_imp_list)
     
 
-#inputs: spinner, imp_select, spinner_text
 callback_selection_button_js="""
-var list_show_imps;
-var open_link;
-var list_show_imps_str;
-var str_imp_list;
-
-// show spinner to visualize busy state
-spinner.object = spinner_text;
-
-// get list of selected impurities
-list_show_imps = imp_select.selection_widget.value;
-
-// open imp detail page
-if (list_show_imps.length===1){
-    // update impurity detail page  with new data 
-    open_link = "http://localhost:5006/judit/main_imp_detail?id="+list_show_imps[0];
-    console.log('Opening url:'+open_link);
-    //window.open(open_link);
+console.log('open link:'+url.value);
+console.log(url.value.length);
+if (url.value.length>0) {
+    window.open(url.value);
 }
-
-// open imp comparison page
-if (list_show_imps.length>1){
-    // create page that compares the impurity properties, open new tab
-    list_show_imps_str = list_show_imps.join();
-    open_link = "http://localhost:5006/judit/main_imp_comparison?id="+list_show_imps_str;
-    console.log('Opening url:'+open_link);
-    //window.open(open_link);
-}
-
-// close spinner
-spinner.object = "";
 """
 
 
@@ -249,14 +221,47 @@ def select_list(b):
     global imp_select
     imp_select.update_selection_list()
 
+def link_text_field_to_multiselect(target, event):
+    # get source (i.e. MultiSelect widget) from event
+    source = event.new
+    print('link_text_field:', source)
+
+    # extract url
+    url = ""
+
+    # open imp detail page
+    if len(source)==1:
+        url = "http://localhost:5006/judit/main_imp_detail?id="+source[0]
+
+    # open imp comparison page
+    if len(source)>1:
+        list_show_imps_str = ','.join(source)
+        url = "http://localhost:5006/judit/main_imp_comparison?id="+list_show_imps_str
+
+    print(url)
+
+    # set target text with url
+
+    print(target.value)
+    target.value = url
+    print(target.value)
+
 
 def get_buttons_with_callbacks():
+
+    global imp_select
 
     # add button and output pane to show selection
     button = pn.widgets.Button(name="Show impurity details in new tab", button_type="primary")
     button.on_click(callback_selection_button)
-    button.js_on_click(args={'spinner': spinner, 'imp_select': imp_select, 'spinner_text': spinner_text},
+    # make URL in auxiliary text field, this is automatically updated with each change in the MultiSelect
+    url = pn.widgets.TextInput(name="Selection URL", value=None, disabled=True)#, placeholder="")
+    imp_select_widget = imp_select.selection_widget
+    imp_select_widget.link(url, callbacks={'value': link_text_field_to_multiselect})
+    # now use url to adapt opening of new tab
+    button.js_on_click(args={'url': url},
                        code=callback_selection_button_js)
+    button = pn.Column(button, url) # need to show url here as well otherwise linking does not work
 
     button_reset_selection = pn.widgets.Button(name="Reset selection", button_type="primary", width_policy='min')
     button_reset_selection.on_click(reset_values)

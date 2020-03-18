@@ -520,8 +520,10 @@ def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_
         for i in out_text_details:
             out_text_details_md += i+'\n'
         out_text_details = out_text_details_md
-
-        impdos_plot = plot_impdos(impname)
+        try:
+            impdos_plot = plot_impdos(impname)
+        except:
+            impdos_plot = pn.pane.Markdown("### Failed to load DOS data!")
 
         display_all = pn.Row(impdos_plot, strucview_imp)
         display_all = pn.Column(display_all, pn.pane.Markdown(out_text_details))

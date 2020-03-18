@@ -8,10 +8,8 @@ try:
     if isinstance(name, bytes):
         list_show_imps_str = name.decode()
         list_show_imps = []
-        for i in list_show_imps_str.split(' ')[1:]:
-            tmp = tmp.replace('%', ' ')
+        for tmp in list_show_imps_str.split(','):
             if tmp[0]==' ': tmp = tmp[1:]
-            tmp = tmp.split('?bokeh-session-id')[0]
             list_show_imps.append(tmp)
 except:
     list_show_imps = None
