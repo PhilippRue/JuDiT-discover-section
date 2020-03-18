@@ -12,4 +12,4 @@ before_install:
 - pip install --upgrade pip
 
 install:
-- pip install -e .[pre-commit]
+- pip install -e judit-app
