@@ -6,8 +6,9 @@ services:
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-podman
     volumes:
-      - '/Users/ruess/sourcecodes/aiida/JuDiT_webinterface/venv/.aiida/repository/judit:/app/.aiida/repository/judit/'
+      - '/Local/ruess/.aiida/repository/judit-test/:/app/.aiida/repository/judit/'
     ports:
       - "5006:5006"
+    network_mode: "host"
