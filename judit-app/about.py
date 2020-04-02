@@ -17,8 +17,8 @@ judit_header = pn.Column(
                 , width=website_width),
     pn.pane.HTML("<br></br>"
                  "<div align='right'>"
-                +"    <a href'https://archive.materialscloud.org'>Database version: v1.0</a>"
-                +"    <p> doi: {}</p>".format(DOI_DATABASE_MC_ARCHIVE)
+                +"    <a href='https://archive.materialscloud.org/2020.0030/v1'>Database version: v1.0</a>"
+                +"    <p><a href='https://doi.org/{0}'> doi: {0}</a></p>".format(DOI_DATABASE_MC_ARCHIVE)
                 +"</div>"
                 , width=website_width),
                 
@@ -29,7 +29,11 @@ judit_header = pn.Column(
 how_to_cite = (
     "### If you use this tool please cite the following publication:\n"
     "\n"
-    "#### Philipp Rüßmann, Fabian Bertoldo, and Stefan Blügel, *The AiiDA-KKR plugin and its application to high-throughput impurity embedding into a topological insulator*, in preparation (2020)."
+    "Philipp Rüßmann, Fabian Bertoldo, and Stefan Blügel, *The AiiDA-KKR plugin and its application to high-throughput impurity embedding into a topological insulator*, [arXiv:2003.08315 [cond-mat.mtrl-sci] (2020)](https://arxiv.org/abs/2003.08315)."
+    "\n"
+    "### Please also cite the data set:"
+    "\n"
+    "Philipp Rüßmann, Fabian Bertoldo, Stefan Blügel, *The JuDiT database of impurities embedded into a Topological Insulator*, Materials Cloud Archive (2020), [doi: {0}](https://doi.org/{0}).".format(DOI_DATABASE_MC_ARCHIVE)
 )
 
 about = markdown.markdown(
