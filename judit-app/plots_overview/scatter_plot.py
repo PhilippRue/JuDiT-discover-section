@@ -202,9 +202,8 @@ def get_scatterplot_and_buttons():
 
     callback_change_x = CustomJS(args=dict(source=source_scatter, plot=scatterplot, formatters=formatters
                                     ),
-                        code="""
-                                /// get value of active button
-                                val = cb_obj.value
+                        code="""/// get value of active button
+                                var val = cb_obj.value
                                 /// change x column
                                 source.data['x'] = source.data[val]
                                 source.change.emit()
@@ -217,9 +216,8 @@ def get_scatterplot_and_buttons():
 
     callback_change_y = CustomJS(args=dict(source=source_scatter, plot=scatterplot, formatters=formatters
                                     ),
-                        code="""
-                                /// get value of active button
-                                val = cb_obj.value
+                        code="""/// get value of active button
+                                var val = cb_obj.value
                                 /// change y column
                                 source.data['y'] = source.data[val]
                                 source.change.emit()
@@ -231,9 +229,8 @@ def get_scatterplot_and_buttons():
                         )
 
     callback_change_color = CustomJS(args=dict(source=source_scatter,),
-                        code="""
-                                /// get value of active button
-                                val = cb_obj.value
+                        code="""/// get value of active button
+                                var val = cb_obj.value
                                 /// change color column
                                 source.data['color'] = source.data['color_'+val]
                                 source.change.emit()
@@ -244,15 +241,12 @@ def get_scatterplot_and_buttons():
     options_select = ['Zimp', 'Zhost', 'ilayer', 'EFshift', 'rms', 'spinmom', 'orbmom', 
                     'etot_Ry', 'charge_doping', 'DOS_in_gap']
 
-    select_x = Select(title='Choose X:', value=name0x, options=options_select,
-                    callback=callback_change_x, width=100, max_height=50
-                    )
-    select_y = Select(title='Choose Y:', value=name0y, options=options_select,
-                    callback=callback_change_y, width=100, max_height=50
-                    )
-    select_color = Select(title='Choose color:', value=name0c, options=['None']+options_select,
-                    callback=callback_change_color, width=100, max_height=50
-                    )
+    select_x = Select(title='Choose X:', value=name0x, options=options_select, width=100, max_height=50)
+    select_x.js_on_change('value', callback_change_x)
+    select_y = Select(title='Choose Y:', value=name0y, options=options_select, width=100, max_height=50)
+    select_y.js_on_change('value', callback_change_y)
+    select_color = Select(title='Choose color:', value=name0c, options=['None']+options_select, width=100, max_height=50)
+    select_color.js_on_change('value', callback_change_color)
 
     return scatterplot, source_scatter, select_x, select_y, select_color
 
@@ -324,7 +318,7 @@ def add_callbacks_histograms(xhist, yhist, src_hist_x, src_hist_y, dict_vhist_al
                                             ),
                                     code="""
                                         /// get value of active button
-                                        val = select.value
+                                        var val = select.value
                                         /// change y histogram
                                         source.data['bottom'] = dict_hist_all[val]['bottom']
                                         source.data['top'] = dict_hist_all[val]['top']
@@ -342,7 +336,7 @@ def add_callbacks_histograms(xhist, yhist, src_hist_x, src_hist_y, dict_vhist_al
                                             ),
                                     code="""
                                         /// get value of active button
-                                        val = select.value
+                                        var val = select.value
                                         /// change x histogram
                                         source.data['left'] = dict_hist_all[val]['left']
                                         source.data['right'] = dict_hist_all[val]['right']

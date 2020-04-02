@@ -16,7 +16,7 @@ if __name__ == '__main__':
           version="0.1.0",
           install_requires=[
               "aiida-core~=1.1.1",
-              "panel~=0.8.0",
+              "panel~=0.9.4",
               "tornado==5.1.1",
               "matplotlib==3.2.0",
               "requests~=2.21.0",

@@ -216,6 +216,7 @@ def do_trafo(inlist, trafo):
 def print_ordered_output_dir(resdict, return_text=False):
     # first define list for ourdered output of dict
     order_output_keys = [
+        """
         ['Version info', [
             'calculation_label',
             'uuid',
@@ -223,6 +224,7 @@ def print_ordered_output_dir(resdict, return_text=False):
             'JuKKR_code_version',
             'kkrimp_calculation_plugin_version'
         ]],
+        """
 
         ['Impurity cluster', [
             'atoms_in_impurity_cluster',

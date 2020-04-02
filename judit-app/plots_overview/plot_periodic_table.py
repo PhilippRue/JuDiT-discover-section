@@ -435,9 +435,8 @@ def add_buttons_to_periodic_table(plot, source, source_allEF, color_bar):
     callback_rb = CustomJS(args=dict(source=source, cbar=color_bar, cmap_update=cmap_update_rb, 
                                     formatter=formatter_rb, newtitle=newtitle_rb, 
                                     cname=cname_rb),
-                        code="""
-                                /// get index of active button
-                                idx = cb_obj.active
+                        code="""/// get index of active button
+                                var idx = cb_obj.active
                                 
                                 /// set color according to color name
                                 source.data['type_color'] = source.data[cname[idx]]
@@ -457,7 +456,8 @@ def add_buttons_to_periodic_table(plot, source, source_allEF, color_bar):
                                 """
                         )
                         
-    toggles = RadioButtonGroup(labels=names_rb, active=0, callback=callback_rb)
+    toggles = RadioButtonGroup(labels=names_rb, active=0)
+    toggles.js_on_change('active', callback_rb )
                         
 
     # using radiobuttons
@@ -468,13 +468,13 @@ def add_buttons_to_periodic_table(plot, source, source_allEF, color_bar):
                                     cname=cname_rb),
                         code="""
                                 /// get value of active button
-                                idx = cb_obj.active
+                                var idx = cb_obj.active
                                 
                                 /// save value of colorbuttons active value (store in plot_component)
                                 ///colorbuttons.active = source.data['plot_component'][0]
                                 
                                 /// now overwrite data of source with new source
-                                newsource = allsources[idx]
+                                var newsource = allsources[idx]
                                 source.data = newsource.data
                                 
                                 /// restore value of colorbuttons active button etc.
@@ -502,7 +502,8 @@ def add_buttons_to_periodic_table(plot, source, source_allEF, color_bar):
                                 """
                         )
     names_EF = ['EF= '+str(EFvalue)+'meV' for EFvalue in [-200,0,200]]+['all']
-    EFbuttons = RadioButtonGroup(labels=names_EF, active=3, callback=callback_EF)
+    EFbuttons = RadioButtonGroup(labels=names_EF, active=3)
+    EFbuttons.js_on_change('active', callback_EF )
     
 
     EFtext = Paragraph(text="""Select Fermi level:""", width=110, align='start')
