@@ -5,6 +5,10 @@ from plots_overview.load_data import load_imp_properties
 from plots_imp_detail import spinner_text
 from plots_imp_detail.imp_detail import preload_data
 from bokeh.client import show_session
+from pandas import DataFrame
+from plots_imp_detail.imp_detail import get_impdata_by_name, preload_data
+from plots_imp_detail.tools import get_impname_label
+from global_settings import EF0
 
 def prepare_imp_properties_lists(imp_properties_all):
 
@@ -64,8 +68,7 @@ class Select_Impurity():
         bounds = (int(zhosts.min()), int(zhosts.max()))
         self.Zhost = pn.widgets.IntRangeSlider(start=bounds[0], end=bounds[1])
         
-        self.selection_widget = pn.widgets.MultiSelect(name='Chose one or more impurities for detailed view', 
-                                                       options=[], size=8)
+        self.selection_widget = pn.widgets.MultiSelect(name='', options=[], size=8, max_width=200)
     
     
     def preselected_list(self):
@@ -166,7 +169,10 @@ class Select_Impurity():
                                 pn.Row(pn.pane.Markdown("Layer index:", width=60), self.layer_index),
                                 pn.Row(pn.pane.Markdown("Zhost:", width=60), self.Zhost)
                                ),
-                      pn.Column(self.selection_widget))
+                      pn.Column(pn.pane.Markdown("Choose one or more impurities for detailed view or download", width=250),
+                                self.selection_widget,
+                                ),
+                     )
 
 
 
@@ -198,7 +204,6 @@ if (url.value.length>0) {
 """
 
 
-
 def reset_values(b):
     global imp_select
     imp_select.EF_value.value = imp_select.EF_value.values[1]
@@ -207,19 +212,23 @@ def reset_values(b):
     imp_select.Zhost.value = (imp_select.Zhost.start, imp_select.Zhost.end)
     imp_select.update_selection_list()
 
+
 def set_3d(b):
     global imp_select
     imp_select.Zimp.value =(21, 30)
     imp_select.update_selection_list()
+
 
 def set_4d(b):
     global imp_select
     imp_select.Zimp.value =(39, 48)
     imp_select.update_selection_list()
 
+
 def select_list(b):
     global imp_select
     imp_select.update_selection_list()
+
 
 def link_text_field_to_multiselect(target, event):
     # get source (i.e. MultiSelect widget) from event
@@ -241,10 +250,87 @@ def link_text_field_to_multiselect(target, event):
     print(url)
 
     # set target text with url
-
     print(target.value)
     target.value = url
     print(target.value)
+
+
+def link_download_data_to_multiselect(target, event):
+    target._clicks += 1
+
+
+def get_download_button(url):
+    """
+    construct download buttons taking data form selection widget
+    """
+
+    @pn.depends(url)
+    def get_df_from_selection(url):
+        """
+        get pandas dataframe from selection widget
+        """
+        # get list of imp names from selection widget via selection url
+        impnames_all = url 
+        
+        print('impnames_all0', impnames_all)
+
+        if impnames_all is not None:
+            impnames_all = impnames_all.split('id=')[1]
+            if ',' not in impnames_all:
+                impnames_all = [impnames_all]
+            else:
+                impnames_all = impnames_all.split(',')
+            print('impnames_all', impnames_all)
+        else:
+            impnames_all = []
+
+        # fill data dict with dicts of calculations
+        data_dict = {}
+        first = True
+
+        imp_properties_all, all_DOSingap, all_dc = preload_data(load_data=True, load_structure=False)
+
+        # collect data for all imps
+        for impname in impnames_all:
+            impdata, _ = get_impdata_by_name(get_impname_label(impname), imp_properties_all, all_DOSingap, all_dc)
+            # append to lists of data
+            for key, val in impdata.items():
+                if key=='Delta_EF':
+                    val = EF0 - val # correct for Fermi level shift
+                if first:
+                    data_dict[key] = [val]
+                else:
+                    data_dict[key].append(val)
+            first = False
+        
+        # convert to dataframe
+        df = DataFrame(data_dict)
+
+        return df
+
+    @pn.depends(url)
+    def get_data_to_download(url):
+        """
+        extract data for download and return as csv
+        """
+        # get pandas dataframe
+        print('get_df_from_selection:', url)
+        df = get_df_from_selection(url)
+        print('get_df_from_selection:', df)
+        from io import StringIO
+        sio = StringIO()
+        df.to_csv(sio)
+        sio.seek(0)
+        # return csv data
+        return sio
+
+    # construct download button with callback to update data
+    download_button = pn.widgets.FileDownload(callback=get_data_to_download, filename='judit_data.csv', auto=False, embed=False)
+
+    # initialize download button (mimicks the first click that transfers initial data)
+    download_button.param.set_param('_clicks', download_button._clicks+1)
+
+    return download_button
 
 
 def get_buttons_with_callbacks():
@@ -258,6 +344,7 @@ def get_buttons_with_callbacks():
     url = pn.widgets.TextInput(name="Selection URL", value=None, disabled=True)#, placeholder="")
     imp_select_widget = imp_select.selection_widget
     imp_select_widget.link(url, callbacks={'value': link_text_field_to_multiselect})
+
     # now use url to adapt opening of new tab
     button.js_on_click(args={'url': url},
                        code=callback_selection_button_js)
@@ -275,7 +362,11 @@ def get_buttons_with_callbacks():
     button_select_list= pn.widgets.Button(name="Apply filter", button_type="success", width_policy='min')
     button_select_list.on_click(select_list)
 
-    return button, button_reset_selection, button_3d_selection, button_4d_selection, button_select_list
+    download_button = get_download_button(url)
+    # need to update the _clicks property of download_button manually, otherwise only the first click takes new data
+    imp_select_widget.link(download_button, callbacks={'value': link_download_data_to_multiselect})
+
+    return button, button_reset_selection, button_3d_selection, button_4d_selection, button_select_list, download_button
 
 
 def construct_spinner():
@@ -300,7 +391,7 @@ def make_imp_selector():
 
     times+= [time()]
 
-    button, button_reset_selection, button_3d_selection, button_4d_selection, button_select_list = get_buttons_with_callbacks()
+    button, button_reset_selection, button_3d_selection, button_4d_selection, button_select_list, download_widget = get_buttons_with_callbacks()
 
     times+= [time()]
 
@@ -312,16 +403,19 @@ def make_imp_selector():
     # combine everything to a panel
     imp_select_panel = pn.Row(pn.Column(pn.pane.Markdown('####Select impurity for detail page'),
                                         imp_select.view_preselected_list(),
-                                        pn.Row(button_select_list,
-                                            button_3d_selection,
-                                            button_4d_selection,
-                                            button_reset_selection
-                                            ),
-                                    ),
-                            pn.Column(pn.pane.HTML('<br></br><br></br>'),
+                                        pn.Column(
+                                            pn.Row(button_select_list,
+                                                button_3d_selection,
+                                                button_4d_selection,
+                                                button_reset_selection,
+                                                ),
+                                            download_widget,
+                                            )
+                                        ),
+                              pn.Column(pn.pane.HTML('<br></br><br></br>'),
                                         button,
-                                        pn.Row(output_pane, spinner)
-                                    )
+                                        pn.Row(output_pane, spinner),
+                                       )
                             )
 
     times+= [time()]

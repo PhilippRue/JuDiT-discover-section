@@ -546,12 +546,13 @@ def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_
         return output_impsite
 
 
-def preload_data(load_data=False):
+def preload_data(load_data=False, load_structure=True):
     global imp_properties_all, all_DOSingap, all_dc, structure0
  
     from time import time
     t0 = time()
-    structure0, _ = prepare_plotting_structure(return_struc=True)
+    if load_structure:
+        structure0, _ = prepare_plotting_structure(return_struc=True)
     t1 = time()
     if not load_data:
         imp_properties_all, _, all_DOSingap, _, all_dc, _ = load_all()
