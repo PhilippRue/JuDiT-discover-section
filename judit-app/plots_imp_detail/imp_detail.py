@@ -8,6 +8,7 @@ from plots_host_system.global_settings import *
 import bokeh.plotting as bkp
 from plots_overview.load_data import load_all 
 from about import judit_footer, judit_header
+import traceback
 
 
 def prepare_plotting_structure(return_struc=False):
@@ -215,8 +216,7 @@ def do_trafo(inlist, trafo):
 
 def print_ordered_output_dir(resdict, return_text=False):
     # first define list for ourdered output of dict
-    order_output_keys = [
-        """
+    """
         ['Version info', [
             'calculation_label',
             'uuid',
@@ -224,13 +224,14 @@ def print_ordered_output_dir(resdict, return_text=False):
             'JuKKR_code_version',
             'kkrimp_calculation_plugin_version'
         ]],
-        """
+    """
 
+    order_output_keys = [
         ['Impurity cluster', [
             'atoms_in_impurity_cluster',
             'ilayer',
             'zimp',
-            'zhost',
+            'zhost'
         ]],
 
         ['Convergence / results', [
@@ -503,7 +504,7 @@ def plot_impdos(impname, show_host_dos=True, show_l_channels=True, reuse_fig=Non
 
 
 
-def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_tab=False):
+def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_tab=False, debug=False):
     
     global imp_properties_all, all_DOSingap, all_dc
     global output_impsite
@@ -534,6 +535,7 @@ def create_impsite(impname=None, static_plot=False, return_pane=False, open_new_
             display_all = pn.pane.Markdown("Error loading impurity: {}".format(impname))
         else:
             display_all = pn.pane.Markdown("No impurity selected yet. Go back to main page to select one.")
+        if debug: traceback.print_exc()
 
     # combine different parts of the page
     display_all = pn.Column(judit_header, title, display_all, judit_footer)

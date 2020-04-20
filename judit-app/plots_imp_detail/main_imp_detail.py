@@ -16,7 +16,7 @@ print(impname)
 preload_data(load_data=True)
 
 # create impsite
-impsite = create_impsite(impname=impname, static_plot=True, return_pane=True)
+impsite = create_impsite(impname=impname, static_plot=True, return_pane=True, debug=True)
 
 # make page available
 impsite.servable()

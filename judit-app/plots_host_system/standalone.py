@@ -8,14 +8,48 @@ from plots_host_system.host_dos import plot_dos
 from plots_host_system import host_system_header, legend
 from about import judit_footer, judit_header
 
+from aiida.manage.configuration import load_config, load_profile
+from aiida.manage.configuration.profile import Profile
+import os
+
+config = load_config(create=True)
+
+profile_name = os.getenv("AIIDA_PROFILE")
+
+profile = Profile(
+    profile_name, {
+        "database_hostname":
+        os.getenv("AIIDADB_HOST"),
+        "database_port":
+        os.getenv("AIIDADB_PORT"),
+        "database_engine":
+        os.getenv("AIIDADB_ENGINE"),
+        "database_name":
+        os.getenv("AIIDADB_NAME"),
+        "database_username":
+        os.getenv("AIIDADB_USER"),
+        "database_password":
+        os.getenv("AIIDADB_PASS"),
+        "database_backend":
+        os.getenv("AIIDADB_BACKEND"),
+        "default_user":
+        os.getenv("default_user_email"),
+        "repository_uri":
+        "file://{}/.aiida/repository/{}".format(os.getenv("AIIDA_PATH"),
+                                                profile_name),
+    })
+config.add_profile(profile)
+config.set_default_profile(profile_name)
+config.store()
+
+
 
 def create_host_plots_clean():
 
     pn.extension('mathjax')
 
     # load aiida if necessary
-    from aiida import load_profile
-    profile = load_profile()
+    profile = load_profile(profile_name)
 
     ase_atoms = prepare_plotting_structure()
     strucview = create_structure_plot(ase_atoms, static_plot=True)
