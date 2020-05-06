@@ -255,6 +255,9 @@ def print_ordered_output_dir(resdict, return_text=False):
     
     # now print output
     text_output = ['Calculation details:\n====================\n']
+
+    # add link to explore section
+    #text_output.append()
     
     for key in order_output_keys:
         text_output.append('{}'.format(key[0]))

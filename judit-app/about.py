@@ -5,11 +5,15 @@ from global_settings import website_width, DOI_DATABASE_MC_ARCHIVE
 judit_header = pn.Column(
     pn.Row(
         pn.pane.PNG("judit-app/images/JuDiT_logo_round.png", width=400),
-        pn.pane.HTML("<img  align='right' src='https://www.fz-juelich.de/SiteGlobals/StyleBundles/Bilder/NeuesLayout/logo.jpg?__blob=normal' href='www.fz-juelich.de' width='200'/>"
-                    ""
-                    "\n"
-                    ""
-                    , width=website_width),
+        pn.Spacer(width=website_width-600),
+        pn.Column(
+            pn.Spacer(height=10),
+            pn.pane.PNG("judit-app/images/fz_logo.png", width=200, align='end'),
+            pn.Spacer(height=10),
+            pn.pane.PNG("judit-app/images/jl-vmd-logo.png", width=200, align='end'),
+            pn.Spacer(height=10),
+            align='end',
+        ),
     ),
     pn.pane.Markdown("## **Jü**lich **D**atabase of **i**mpurities embedded into a **T**opological insulator"
                 , width=website_width),
@@ -21,8 +25,9 @@ judit_header = pn.Column(
                 +"    <p><a href='https://doi.org/{0}'> doi: {0}</a></p>".format(DOI_DATABASE_MC_ARCHIVE)
                 +"</div>"
                 , width=website_width),
-                
 )
+                
+
 
 
 
@@ -77,18 +82,19 @@ used_software = markdown.markdown(
     "- masci-tools: [https://github.com/JuDFTteam/masci-tools](https://github.com/JuDFTteam/masci-tools)\n"
     "- ase-notebook: [https://github.com/chrisjsewell/ase-notebook](https://github.com/chrisjsewell/ase-notebook)\n"
     "- bokeh: [https://bokeh.org](https://bokeh.org)\n"
+    "- panel: [https://panel.holoviz.org](https://panel.holoviz.org)\n"
 
 )
 
 
 
-how_to_cite = pn.pane.Markdown(how_to_cite, width=800, sizing_mode='stretch_both')
+how_to_cite = pn.pane.Markdown(how_to_cite, width=website_width, sizing_mode='stretch_both')
 
-about = pn.pane.Markdown(about, width=800, sizing_mode='stretch_both')
+about = pn.pane.Markdown(about, width=website_width, sizing_mode='stretch_both')
 
-acknowledgements = pn.pane.Markdown(acknowledgements, width=800, sizing_mode='stretch_both')
+acknowledgements = pn.pane.Markdown(acknowledgements, width=website_width, sizing_mode='stretch_both')
 
-used_software = pn.pane.Markdown(used_software, width=800, sizing_mode='stretch_both')
+used_software = pn.pane.Markdown(used_software, width=website_width, sizing_mode='stretch_both')
 
 db_info = pn.Tabs(('How to cite', how_to_cite), 
                   ('About the databse', about), 
@@ -105,16 +111,48 @@ judit_footer = pn.Column(
                      +"\n"
                      +"\n"
                      +"### Links\n"
-                     +"\n"
-                     +"* [Forschungszentrum Jülich](https://www.fz-juelich.de/portal/DE/Home/home_node.html)\n"
-                     +"* [Institute for Advanced Simulation (IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/DE/Home/home_node.html)\n"
-                     +"* [Institute Quantum Theory of Materials (PGI-1)](https://www.fz-juelich.de/pgi/pgi-1/DE/Home/home_node.html)\n"
-                     +"* [juDFT: DFT codes from Forschungszentrum Jülich](http://www.judft.de)\n"
-                     +"* [juKKR: The Jülich KKR codes](https://jukkr.fz-juelich.de)\n"
-                     +"* [AiiDA](http://www.aiida.net)\n"
-                     +"* [MaterialsCloud](https://www.materialscloud.org)\n"
+                     +"</small>"),
+    pn.Row(
+        pn.pane.Markdown("<small>\n"
+                        +"\n"
+                        +"* [Forschungszentrum Jülich](https://www.fz-juelich.de/portal/DE/Home/home_node.html)\n"
+                        +"* [Institute for Advanced Simulation (IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/DE/Home/home_node.html)\n"
+                        +"* [Institute Quantum Theory of Materials (PGI-1)](https://www.fz-juelich.de/pgi/pgi-1/DE/Home/home_node.html)\n"
+                        +"* [juDFT: DFT codes from Forschungszentrum Jülich](http://www.judft.de)\n"
+                        +"\n"
+                        +"</small>\n"),
+        pn.pane.Markdown("<small>\n"
+                        +"\n"
+                        +"* [Joint Lab - Virtual Materials Design](https://www.fz-juelich.de/pgi/pgi-1/EN/Forschung/Joint-Lab-VMD/artikel.html)\n"
+                        +"* [juKKR: The Jülich KKR codes](https://jukkr.fz-juelich.de)\n"
+                        +"* [AiiDA](http://www.aiida.net)\n"
+                        +"* [MaterialsCloud](https://www.materialscloud.org)\n"
+                        +"\n"
+                        +"</small>\n"),
+    ),
+    pn.pane.Markdown("<small>\n"
                      +"\n"
                      +"[Contact: Dr. Philipp Rüßmann](mailto:p.ruessmann@fz-juelich.de?subject=[JuDiT])\n\n"
                      +"[©2020 Quantum Theory of Materials (PGI-1 / IAS-1)](https://www.fz-juelich.de/pgi/pgi-1/EN/Home/home_node.html)\n"
-                     +"</small>\n"
-                    , width=website_width))
+                     +"</small>\n"),
+    width=website_width,
+)
+
+
+def provenance_link(uuid, label=None):
+    """
+    Return representation of provenance link.
+
+    Copied from discover section of curated cofs
+    https://github.com/lsmo-epfl/discover-curated-cofs/blob/b30e33a1114f541dc0aeee22e8b15c2fc47aaf7c/select-figure/main.py#L22
+    """
+    import os
+
+    if label is None:
+        label = "Browse provenance\n" + str(uuid)
+
+    logo_url = "judit-app/images/aiida-128.png"
+    explore_url = os.getenv('EXPLORE_URL', "https://dev-www.materialscloud.org/explore/judit")
+
+    return "<a href='{url}/details/{uuid}' target='_blank'><img src={logo_url} title='{label}' style='width: 20px;  height: auto;'></a>".format(  # noqa
+        url=explore_url, uuid=str(uuid), label=label, logo_url=logo_url)

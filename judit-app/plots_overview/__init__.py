@@ -165,7 +165,7 @@ def make_overview_panels():
     # combine plots
     layout = pn.Column(pn.pane.Markdown("## Average values for different impurity configurations"), 
                     layout_periodic_table,
-                    pn.pane.Markdown("## Scatter plot"),
+                    pn.pane.Markdown("## Scatter plot of impurity properties for all calculations"),
                     layout_with_hist,
                     )
 

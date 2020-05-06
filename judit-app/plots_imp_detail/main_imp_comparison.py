@@ -22,5 +22,5 @@ imp_properties_all, all_DOSingap, all_dc = preload_data(load_data=True)
 # open comparison page
 imp_cmp_page_full = create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc, return_full_page=True)
 
-imp_cmp_page_full.servable()
+imp_cmp_page_full.servable(title="JuDiT - impurity comparison")
 

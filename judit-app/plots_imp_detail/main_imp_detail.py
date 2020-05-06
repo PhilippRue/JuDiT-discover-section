@@ -19,4 +19,4 @@ preload_data(load_data=True)
 impsite = create_impsite(impname=impname, static_plot=True, return_pane=True, debug=True)
 
 # make page available
-impsite.servable()
+impsite.servable(title="JuDiT - impurity detail page")
