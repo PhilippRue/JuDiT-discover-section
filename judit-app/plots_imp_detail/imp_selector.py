@@ -1,4 +1,5 @@
 
+import os
 import panel as pn
 import numpy as np
 from plots_overview.load_data import load_imp_properties
@@ -240,12 +241,18 @@ def link_text_field_to_multiselect(target, event):
 
     # open imp detail page
     if len(source)==1:
-        url = "http://localhost:5006/judit/main_imp_detail?id="+source[0]
+        url = os.getenv("WEBADDRESS")
+        if url is None:
+            url = "http://localhost:5006/judit/"
+        url += "main_imp_detail?id="+source[0]
 
     # open imp comparison page
     if len(source)>1:
         list_show_imps_str = ','.join(source)
-        url = "http://localhost:5006/judit/main_imp_comparison?id="+list_show_imps_str
+        url = os.getenv("WEBADDRESS")
+        if url is None:
+            url = "http://localhost:5006/judit/"
+        url += "main_imp_comparison?id="+list_show_imps_str
 
     print(url)
 

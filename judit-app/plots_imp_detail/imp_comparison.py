@@ -7,6 +7,7 @@ from bokeh.palettes import Set1_8 as palette
 from plots_imp_detail.imp_detail import get_impdata_by_name
 from about import judit_footer, judit_header
 from plots_imp_detail.imp_detail import preload_data
+import traceback
 
 def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alpha=0.8,
                     size=10, plot_width=600, plot_height=200, oldfig=None, yrange_min=None):
@@ -38,7 +39,7 @@ def get_scatterplot(source, xcolname, ycolname, xlabel, ylabel, title, fill_alph
 
 
 
-def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc, return_full_page): 
+def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap, all_dc, return_full_page, debug=False): 
     if list_show_imps is not None:
         source = {'Zimp':[], 'impurity index':[], 'spin mom.':[], 
                 'orb mom.':[], 'DOS in gap':[], 'charge doping':[],
@@ -46,6 +47,7 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
                 }
         
         ii = 0
+        error_messages = []
         for iimp in list_show_imps:
             impname_select = get_impname_label(iimp)
 
@@ -53,24 +55,27 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
 
             if ii==0:
                 impdos_plot = plot_impdos(impname_select, show_host_dos=True, show_l_channels=False, 
-                                        overwrite_label=iimp.split()[0], line_color=color)
+                                          overwrite_label=iimp.split()[0], line_color=color)
             else:
                 impdos_plot = plot_impdos(impname_select, show_host_dos=False, show_l_channels=False, 
-                                        reuse_fig=impdos_plot, add_bulk_gap_region=False, 
-                                        overwrite_label=iimp.split()[0], line_color=color)
+                                          reuse_fig=impdos_plot, add_bulk_gap_region=False, 
+                                          overwrite_label=iimp.split()[0], line_color=color)
                 
 
-            impdata, _ = get_impdata_by_name(impname_select, imp_properties_all, 
-                                                    all_DOSingap, all_dc, noref=True)
-
-            source['Zimp'].append(impdata['zimp'])
-            source['impurity index'].append(ii)
-            source['spin mom.'].append(impdata['spin_moment_imp'][-1])
-            source['orb mom.'].append(impdata['orbital_moment_imp'][-1])
-            source['DOS in gap'].append(impdata['DOS_in_gap'])
-            source['charge doping'].append(impdata['charge_doping'])
-            source['color'].append(color)
-            
+            try:
+                impdata, _ = get_impdata_by_name(impname_select, imp_properties_all, 
+                                                 all_DOSingap, all_dc, noref=True)
+                source['Zimp'].append(impdata['zimp'])
+                source['impurity index'].append(ii)
+                source['spin mom.'].append(impdata['spin_moment_imp'][-1])
+                source['orb mom.'].append(impdata['orbital_moment_imp'][-1])
+                source['DOS in gap'].append(impdata['DOS_in_gap'])
+                source['charge doping'].append(impdata['charge_doping'])
+                source['color'].append(color)
+            except:
+                error_messages.append('Error loading  {}'.format(impname_select))
+                if debug: traceback.print_exc()
+ 
             ii+=1
             
         source = bkp.ColumnDataSource(data=source)
@@ -99,7 +104,7 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
                                                             ))
         
         # create info text
-        info_text = pn.pane.Markdown("""
+        info_text = """
     ## Impurity comparison page
 
 
@@ -113,7 +118,10 @@ def create_imp_comparison_page(list_show_imps, imp_properties_all, all_DOSingap,
         * charge doping
 
     The colors used in the DOS plot are reused for the datapoints in the plots showing the physical properties (right column).
-        """, width=600)
+        """
+        for error in error_messages:
+            info_text += "\n\n"+error
+        info_text = pn.pane.Markdown(info_text, width=600)
 
         output_imp_cmp_update =  pn.Row(pn.Column(info_text,
                                                     impdos_plot),

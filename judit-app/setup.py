@@ -16,14 +16,14 @@ if __name__ == '__main__':
           version="0.1.0",
           install_requires=[
               "aiida-core~=1.1.1",
+              "aiida-kkr~=1.1.10",
               "panel~=0.9.4",
-              "tornado==5.1.1",
-              "matplotlib==3.2.0",
-              "requests~=2.21.0",
+              "ase-notebook~=0.3.1", # for crystal structure plots
+              "pandas~=1.0.1",
+              "tornado~=5.1.1", # to make bokeh happy
+              "ase~=3.18", # to make ase-notebook happy
+              "numpy<1.17", # to make ase-notebook happy
               "jupyter",
-              "aiida-kkr==1.1.10",
-              "ase-notebook==0.3.1",
-              "pandas==1.0.1",
           ],
           extras_require={
               "pre-commit":

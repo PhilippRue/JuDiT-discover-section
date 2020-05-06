@@ -20,6 +20,9 @@ ENV default_user_email p.ruessmann@fz-juelich.de
 ENV EXPLORE_URL https://dev-www.materialscloud.org/explore/judit
 ENV BOKEH_PREFIX "/judit"
 
+# tell bokeh server where to find the detail page
+ENV WEBADDRESS https://pgi-jcns.fz-juelich.de/judit/
+
 # set workdir in container
 WORKDIR /app
 

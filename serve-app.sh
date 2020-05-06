@@ -24,7 +24,8 @@ panel serve judit-app/judit_website_main.ipynb \
     --log-level debug           \
     --allow-websocket-origin "*" \
     --prefix "$BOKEH_PREFIX" \
-    --use-xheaders
+    --use-xheaders           \
+    --address 0.0.0.0
 
 #===============================================================================
 

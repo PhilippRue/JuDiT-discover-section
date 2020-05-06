@@ -216,6 +216,7 @@ def do_trafo(inlist, trafo):
 
 def print_ordered_output_dir(resdict, return_text=False):
     # first define list for ourdered output of dict
+
     """
         ['Version info', [
             'calculation_label',
