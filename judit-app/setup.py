@@ -18,11 +18,11 @@ if __name__ == '__main__':
               "aiida-core~=1.1.1",
               "aiida-kkr~=1.1.10",
               "panel~=0.9.4",
-              "ase-notebook~=0.3.1", # for crystal structure plots
+              "git+https://github.com:PhilippRue/ase-notebook.git", # for crystal structure plots
               "pandas~=1.0.1",
               "tornado~=5.1.1", # to make bokeh happy
               "ase~=3.18", # to make ase-notebook happy
-              "numpy<1.17", # to make ase-notebook happy
+              "numpy~=1.19", # to make ase-notebook happy
               "jupyter",
           ],
           extras_require={
