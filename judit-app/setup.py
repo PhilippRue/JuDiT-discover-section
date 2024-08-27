@@ -20,9 +20,6 @@ if __name__ == '__main__':
               "panel~=0.9.4",
               "git+https://github.com:PhilippRue/ase-notebook.git", # for crystal structure plots
               "pandas~=1.0.1",
-              "tornado~=5.1.1", # to make bokeh happy
-              "ase~=3.18", # to make ase-notebook happy
-              "numpy~=1.19", # to make ase-notebook happy
               "jupyter",
           ],
           extras_require={
