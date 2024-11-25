@@ -21,6 +21,7 @@ if __name__ == '__main__':
               "git+https://github.com:PhilippRue/ase-notebook.git", # for crystal structure plots
               "pandas~=1.0.1",
               "jupyter",
+              "tornado~=6.4.2", # to fix security issue https://github.com/PhilippRue/JuDiT-discover-section/security/dependabot/9
           ],
           extras_require={
               "pre-commit":
